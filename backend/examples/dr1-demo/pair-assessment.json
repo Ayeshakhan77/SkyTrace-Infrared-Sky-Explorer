@@ -1,0 +1,726 @@
+{
+  "query_position": {
+    "ra_deg": 133.7951291667,
+    "dec_deg": -7.2451472222
+  },
+  "scope": "D1 only: all 4 May-2025 products and 14 late-April/May-2026 products in this fixed-coordinate DR1 query. Ranking uses wavelength difference with at least 300 days separation; quality, target identity, calibration and registration remain not_assessed.",
+  "attempted": 18,
+  "retrieved": 16,
+  "errors": [
+    {
+      "product": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_2/D1",
+      "error": "IRSA returned HTTP 503."
+    },
+    {
+      "product": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0227_2/D1",
+      "error": "IRSA returned HTTP 503."
+    }
+  ],
+  "selected_pair": {
+    "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+    "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+    "wavelength_difference_um": 0.023145995235824057,
+    "first_wavelength_um": 0.9936673935980824,
+    "second_wavelength_um": 0.9705213983622584,
+    "separation_days": 363.0559209999992
+  },
+  "comparison_status": "not_assessed",
+  "selected_records": [
+    {
+      "source": {
+        "observation_id": "c00f1baab5dbf1ca8cabe4d5",
+        "source_product_id": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+        "source_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits",
+        "collection": "spherex_dr1",
+        "mjd_start": 60801.514177,
+        "mjd_end": 60801.515509,
+        "wavelength_min_m": 7.455e-07,
+        "wavelength_max_m": 1.1167e-06,
+        "bandpass_name": "SPHEREx-D1",
+        "metadata": {
+          "s_ra": 133.42537061289184,
+          "s_dec": -7.945311374583057,
+          "facility_name": "SPHEREx",
+          "instrument_name": "SPHEREx",
+          "dataproduct_subtype": "science",
+          "calib_level": 2,
+          "dataproduct_type": "image",
+          "energy_bandpassname": "SPHEREx-D1",
+          "energy_emband": "Infrared",
+          "obs_id": "2025W19_1B_0241_1",
+          "s_resolution": 3.075,
+          "em_min": 7.455e-07,
+          "em_max": 1.1167e-06,
+          "em_res_power": 39.1,
+          "proposal_title": "SPHEREx LVF Survey Data",
+          "access_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits",
+          "access_format": "image/fits",
+          "access_estsize": 65863,
+          "t_exptime": 113.5826,
+          "s_region": "POLYGON ICRS 132.37572698467102 -5.774332371971112 135.69436253079263 -6.87094074442719 134.48014186937593 -10.141442579026577 131.10810532440334 -9.030126635867386 132.37572698467102 -5.774332371971112",
+          "obs_collection": "spherex_dr1",
+          "obs_intent": "science",
+          "algorithm_name": "exposure",
+          "facility_keywords": "",
+          "instrument_keywords": "",
+          "environment_photometric": null,
+          "proposal_id": "",
+          "proposal_pi": "",
+          "proposal_project": "SPHEREx",
+          "target_name": "SPS_119426_S12",
+          "target_type": "field",
+          "target_standard": false,
+          "target_moving": false,
+          "target_keywords": "",
+          "obs_release_date": "2026-09-27 23:59:28",
+          "s_xel1": 2040,
+          "s_xel2": 2040,
+          "s_pixel_scale": 6.15,
+          "position_timedependent": false,
+          "t_min": 60801.514177,
+          "t_max": 60801.515509,
+          "t_resolution": null,
+          "t_xel": null,
+          "obs_publisher_did": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+          "s_fov": 3.485,
+          "em_xel": null,
+          "pol_states": "",
+          "pol_xel": null,
+          "cloud_access": "{\"aws\": {\"bucket_name\": \"nasa-irsa-spherex\", \"key\":\"dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits\", \"region\": \"us-east-1\"}}",
+          "o_ucd": "",
+          "upload_row_id": 1
+        }
+      },
+      "retrieval": {
+        "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits?center=133.7951291667%2C-7.2451472222&size=0.030000",
+        "byte_count": 3954240,
+        "sha256": "debce6fcefb401e370a406c0a6ab89a835005bc9349d4d827b49b22790c98ae5",
+        "retrieved_at_utc": "2026-11-14T17:00:35+00:00"
+      },
+      "inspection": {
+        "image": {
+          "width": 18,
+          "height": 18,
+          "unit": "MJy / sr",
+          "image_extension": "IMAGE"
+        },
+        "observation_time": {
+          "date_obs": "2025-05-06T12:20:24.888",
+          "date_end": "2025-05-06T12:22:20.006",
+          "source_field": "IMAGE.DATE-OBS",
+          "end_source_field": "IMAGE.DATE-END",
+          "time_system": "UTC",
+          "time_system_source_field": "IMAGE.TIMESYS",
+          "status": "header_value"
+        },
+        "spatial": {
+          "has_celestial_wcs": true,
+          "query_pixel_x": 8.438029294697893,
+          "query_pixel_y": 8.169665226721444,
+          "query_position_within_cutout": true,
+          "alignment_status": "not_assessed"
+        },
+        "wavelength": {
+          "target_center_um": 0.9936673935980824,
+          "target_bandwidth_um": 0.02638664089713691,
+          "status": "spectral_wcs_evaluated",
+          "reason": "WCS W evaluated at the fixed query position, using declared axis units.",
+          "position_basis": "fixed_query_position"
+        },
+        "quality": {
+          "status": "not_assessed",
+          "nonfinite_fraction": 0.0,
+          "flags_present": true,
+          "nonzero_flag_fraction": 0.45987654320987653,
+          "flag_counts": [],
+          "variance": {
+            "present": true,
+            "unit": "MJy2 / sr2",
+            "nonfinite_fraction": 0.0,
+            "negative_fraction": 0.0
+          }
+        },
+        "extensions": [
+          {
+            "index": 0,
+            "name": "PRIMARY",
+            "kind": "PrimaryHDU",
+            "shape": null
+          },
+          {
+            "index": 1,
+            "name": "IMAGE",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 2,
+            "name": "FLAGS",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 3,
+            "name": "VARIANCE",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 4,
+            "name": "ZODI",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 5,
+            "name": "EPSF",
+            "kind": "BinTableHDU",
+            "shape": null
+          },
+          {
+            "index": 6,
+            "name": "WCS-WAVE",
+            "kind": "BinTableHDU",
+            "shape": null
+          }
+        ],
+        "display": {
+          "mode": "per_image_asinh",
+          "percentile_low": 1,
+          "percentile_high": 99,
+          "value_low": 0.19169082954525948,
+          "value_high": 1.4989143574237802,
+          "origin": "lower",
+          "nonfinite_pixels_displayed_as": 0,
+          "brightness_comparison_validated": false
+        },
+        "warnings": [
+          "This is a display-only preview; the source FITS remains the scientific data product.",
+          "The query is a fixed sky position; object identity and proper-motion tracking have not been confirmed.",
+          "WCS alignment, PSF matching, spectral compatibility and photometric comparison have not been assessed.",
+          "The display stretch is per image; preview brightness must not be used to measure changes.",
+          "Flag counts describe the raw bitmask. A nonzero flag is not automatically an unusable pixel; SOURCE and other flags have different meanings.",
+          "Image quality has not been approved for scientific comparison; flags and variance require interpretation.",
+          "FLAGS has no usable MP_* definitions in its header; bit meanings remain unknown."
+        ]
+      }
+    },
+    {
+      "source": {
+        "observation_id": "a1fc7c6290e1280c4d895834",
+        "source_product_id": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+        "source_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits",
+        "collection": "spherex_dr1",
+        "mjd_start": 61164.570098,
+        "mjd_end": 61164.57143,
+        "wavelength_min_m": 7.455e-07,
+        "wavelength_max_m": 1.1167e-06,
+        "bandpass_name": "SPHEREx-D1",
+        "metadata": {
+          "s_ra": 133.49009333821044,
+          "s_dec": -7.758914857319269,
+          "facility_name": "SPHEREx",
+          "instrument_name": "SPHEREx",
+          "dataproduct_subtype": "science",
+          "calib_level": 2,
+          "dataproduct_type": "image",
+          "energy_bandpassname": "SPHEREx-D1",
+          "energy_emband": "Infrared",
+          "obs_id": "2026W19_1A_0201_1",
+          "s_resolution": 3.075,
+          "em_min": 7.455e-07,
+          "em_max": 1.1167e-06,
+          "em_res_power": 39.1,
+          "proposal_title": "SPHEREx LVF Survey Data",
+          "access_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits",
+          "access_format": "image/fits",
+          "access_estsize": 65843,
+          "t_exptime": 113.5826,
+          "s_region": "POLYGON ICRS 132.439795962646 -5.588378073394913 135.7577746501143 -6.683687740483333 134.54511271657364 -9.954658307526383 131.17434807938176 -8.844839190144254 132.439795962646 -5.588378073394913",
+          "obs_collection": "spherex_dr1",
+          "obs_intent": "science",
+          "algorithm_name": "exposure",
+          "facility_keywords": "",
+          "instrument_keywords": "",
+          "environment_photometric": null,
+          "proposal_id": "",
+          "proposal_pi": "",
+          "proposal_project": "SPHEREx",
+          "target_name": "SPS_119425_S12",
+          "target_type": "field",
+          "target_standard": false,
+          "target_moving": false,
+          "target_keywords": "",
+          "obs_release_date": "2026-10-09 18:07:05",
+          "s_xel1": 2040,
+          "s_xel2": 2040,
+          "s_pixel_scale": 6.15,
+          "position_timedependent": false,
+          "t_min": 61164.570098,
+          "t_max": 61164.57143,
+          "t_resolution": null,
+          "t_xel": null,
+          "obs_publisher_did": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+          "s_fov": 3.485,
+          "em_xel": null,
+          "pol_states": "",
+          "pol_xel": null,
+          "cloud_access": "{\"aws\": {\"bucket_name\": \"nasa-irsa-spherex\", \"key\":\"dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits\", \"region\": \"us-east-1\"}}",
+          "o_ucd": "",
+          "upload_row_id": 1
+        }
+      },
+      "retrieval": {
+        "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits?center=133.7951291667%2C-7.2451472222&size=0.030000",
+        "byte_count": 3954240,
+        "sha256": "fbac143cfbe73b83d2233b5d209cbc66725ed35da86b4ba7a7a958cfdd1f0580",
+        "retrieved_at_utc": "2026-11-14T17:03:32+00:00"
+      },
+      "inspection": {
+        "image": {
+          "width": 18,
+          "height": 18,
+          "unit": "MJy / sr",
+          "image_extension": "IMAGE"
+        },
+        "observation_time": {
+          "date_obs": "2026-05-04T13:40:56.452",
+          "date_end": "2026-05-04T13:42:51.570",
+          "source_field": "IMAGE.DATE-OBS",
+          "end_source_field": "IMAGE.DATE-END",
+          "time_system": "UTC",
+          "time_system_source_field": "IMAGE.TIMESYS",
+          "status": "header_value"
+        },
+        "spatial": {
+          "has_celestial_wcs": true,
+          "query_pixel_x": 8.697448273679733,
+          "query_pixel_y": 8.811957590723177,
+          "query_position_within_cutout": true,
+          "alignment_status": "not_assessed"
+        },
+        "wavelength": {
+          "target_center_um": 0.9705213983622584,
+          "target_bandwidth_um": 0.02517966035579482,
+          "status": "spectral_wcs_evaluated",
+          "reason": "WCS W evaluated at the fixed query position, using declared axis units.",
+          "position_basis": "fixed_query_position"
+        },
+        "quality": {
+          "status": "not_assessed",
+          "nonfinite_fraction": 0.0,
+          "flags_present": true,
+          "nonzero_flag_fraction": 0.44135802469135804,
+          "flag_counts": [],
+          "variance": {
+            "present": true,
+            "unit": "MJy2 / sr2",
+            "nonfinite_fraction": 0.0,
+            "negative_fraction": 0.0
+          }
+        },
+        "extensions": [
+          {
+            "index": 0,
+            "name": "PRIMARY",
+            "kind": "PrimaryHDU",
+            "shape": null
+          },
+          {
+            "index": 1,
+            "name": "IMAGE",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 2,
+            "name": "FLAGS",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 3,
+            "name": "VARIANCE",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 4,
+            "name": "ZODI",
+            "kind": "ImageHDU",
+            "shape": [
+              18,
+              18
+            ]
+          },
+          {
+            "index": 5,
+            "name": "EPSF",
+            "kind": "BinTableHDU",
+            "shape": null
+          },
+          {
+            "index": 6,
+            "name": "WCS-WAVE",
+            "kind": "BinTableHDU",
+            "shape": null
+          }
+        ],
+        "display": {
+          "mode": "per_image_asinh",
+          "percentile_low": 1,
+          "percentile_high": 99,
+          "value_low": 0.19098492592573166,
+          "value_high": 2.5175723111629105,
+          "origin": "lower",
+          "nonfinite_pixels_displayed_as": 0,
+          "brightness_comparison_validated": false
+        },
+        "warnings": [
+          "This is a display-only preview; the source FITS remains the scientific data product.",
+          "The query is a fixed sky position; object identity and proper-motion tracking have not been confirmed.",
+          "WCS alignment, PSF matching, spectral compatibility and photometric comparison have not been assessed.",
+          "The display stretch is per image; preview brightness must not be used to measure changes.",
+          "Flag counts describe the raw bitmask. A nonzero flag is not automatically an unusable pixel; SOURCE and other flags have different meanings.",
+          "Image quality has not been approved for scientific comparison; flags and variance require interpretation.",
+          "FLAGS has no usable MP_* definitions in its header; bit meanings remain unknown."
+        ]
+      }
+    }
+  ],
+  "ranked_pairs": [
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+      "wavelength_difference_um": 0.023145995235824057,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.9705213983622584,
+      "separation_days": 363.0559209999992
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0264_1/D1",
+      "wavelength_difference_um": 0.02540735606086164,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 1.091993825152722,
+      "separation_days": 360.13652
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_2/D1",
+      "wavelength_difference_um": 0.030697787829808143,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.9629696057682743,
+      "separation_days": 364.075966000004
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0264_1/D1",
+      "wavelength_difference_um": 0.05021296452784996,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 1.091993825152722,
+      "separation_days": 360.13801299999614
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_1/D1",
+      "wavelength_difference_um": 0.05302896003463975,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.9406384335634427,
+      "separation_days": 364.0744740000009
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+      "wavelength_difference_um": 0.0712594622626136,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.9705213983622584,
+      "separation_days": 363.0529369999931
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0493_1/D1",
+      "wavelength_difference_um": 0.0748941438352807,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.9187732497628017,
+      "separation_days": 363.80602800000634
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_2/D1",
+      "wavelength_difference_um": 0.07881125485659768,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.9629696057682743,
+      "separation_days": 364.07298199999786
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+      "wavelength_difference_um": 0.09606507072960191,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.9705213983622584,
+      "separation_days": 363.051443999997
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0264_1/D1",
+      "wavelength_difference_um": 0.09832643155463949,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 1.091993825152722,
+      "separation_days": 360.14099700000224
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_1/D1",
+      "wavelength_difference_um": 0.10114242706142929,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.9406384335634427,
+      "separation_days": 364.0714899999948
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_2/D1",
+      "wavelength_difference_um": 0.103616863323586,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.9629696057682743,
+      "separation_days": 364.07148900000175
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0227_1/D1",
+      "wavelength_difference_um": 0.11706648711487455,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.8766009064832079,
+      "separation_days": 363.1248130000022
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0493_1/D1",
+      "wavelength_difference_um": 0.12300761086207024,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.9187732497628017,
+      "separation_days": 363.8030440000002
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0594_1/D1",
+      "wavelength_difference_um": 0.1259480355284176,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.9406384335634427,
+      "separation_days": 364.0699969999987
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_4/D1",
+      "wavelength_difference_um": 0.13753201120204295,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.8561353823960395,
+      "separation_days": 361.7736300000033
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0493_1/D1",
+      "wavelength_difference_um": 0.14781321932905855,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.9187732497628017,
+      "separation_days": 363.8015510000041
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_3/D1",
+      "wavelength_difference_um": 0.15714468707162732,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.8365227065264551,
+      "separation_days": 361.77213699999993
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0227_1/D1",
+      "wavelength_difference_um": 0.1651799541416641,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.8766009064832079,
+      "separation_days": 363.12182899999607
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_2/D1",
+      "wavelength_difference_um": 0.17674314993160267,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.8169242436664798,
+      "separation_days": 361.77064500000415
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_4/D1",
+      "wavelength_difference_um": 0.18564547822883248,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.8561353823960395,
+      "separation_days": 361.7706459999972
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0227_1/D1",
+      "wavelength_difference_um": 0.1899855626086524,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.8766009064832079,
+      "separation_days": 363.12033599999995
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_1/D1",
+      "wavelength_difference_um": 0.19541410451173546,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.798253289086347,
+      "separation_days": 361.7691530000011
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_3/D1",
+      "wavelength_difference_um": 0.20525815409841686,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.8365227065264551,
+      "separation_days": 361.7691529999938
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_4/D1",
+      "wavelength_difference_um": 0.2104510866958208,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.8561353823960395,
+      "separation_days": 361.7691530000011
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_4/D1",
+      "wavelength_difference_um": 0.21398913994606894,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.7796782536520135,
+      "separation_days": 360.8227790000019
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_2/D1",
+      "wavelength_difference_um": 0.2248566169583922,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.8169242436664798,
+      "separation_days": 361.76766099999804
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_3/D1",
+      "wavelength_difference_um": 0.23006376256540517,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.8365227065264551,
+      "separation_days": 361.7676599999977
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_3/D1",
+      "wavelength_difference_um": 0.2317372390192216,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.7619301545788608,
+      "separation_days": 360.8212870000061
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_1/D1",
+      "wavelength_difference_um": 0.243527571538525,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.798253289086347,
+      "separation_days": 361.766168999995
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_2/D1",
+      "wavelength_difference_um": 0.2491533206162233,
+      "first_wavelength_um": 0.9936673935980824,
+      "second_wavelength_um": 0.7445140729818591,
+      "separation_days": 360.81979500000307
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_2/D1",
+      "wavelength_difference_um": 0.24966222542538052,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.8169242436664798,
+      "separation_days": 361.7661680000019
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_4/D1",
+      "wavelength_difference_um": 0.2621026069728585,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.7796782536520135,
+      "separation_days": 360.8197949999958
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0684_1/D1",
+      "wavelength_difference_um": 0.2683331800055133,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.798253289086347,
+      "separation_days": 361.7646759999989
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_3/D1",
+      "wavelength_difference_um": 0.27985070604601114,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.7619301545788608,
+      "separation_days": 360.818303
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_4/D1",
+      "wavelength_difference_um": 0.2869082154398468,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.7796782536520135,
+      "separation_days": 360.8183019999997
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_3/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_2/D1",
+      "wavelength_difference_um": 0.29726678764301284,
+      "first_wavelength_um": 1.041780860624872,
+      "second_wavelength_um": 0.7445140729818591,
+      "separation_days": 360.81681099999696
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_3/D1",
+      "wavelength_difference_um": 0.30465631451299946,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.7619301545788608,
+      "separation_days": 360.8168100000039
+    },
+    {
+      "first": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_4/D1",
+      "second": "ivo://irsa.ipac/spherex_dr1?2026W18_2A_0424_2/D1",
+      "wavelength_difference_um": 0.32207239611000116,
+      "first_wavelength_um": 1.0665864690918603,
+      "second_wavelength_um": 0.7445140729818591,
+      "separation_days": 360.81531800000084
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "observed_http_status": 502,
+  "error": {
+    "code": "archive_http_error",
+    "message": "IRSA returned HTTP 502.",
+    "retryable": false
+  },
+  "query": {
+    "ra_deg": 269.4462678797,
+    "dec_deg": 4.7682044119,
+    "radius_deg": 0.01,
+    "collection": "spherex_qr3",
+    "limit": 500
+  },
+  "note": "A separate direct SIA query at the same coordinates returned 124 rows and its VOTable is saved beside this file. This API error is not an empty result."
+}
