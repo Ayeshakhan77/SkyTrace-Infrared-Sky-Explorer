@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CURATED_TARGETS } from '../data/fixtures';
 import { NormalizedObservation, TargetPreset } from '../types/observation';
-import { prepareObservations, searchObservations } from '../services/api';
+import { MAX_RADIUS_DEG, prepareObservations, searchObservations } from '../services/api';
 
 interface QueryConsoleProps {
   onObservationsPrepared: (
@@ -28,7 +28,24 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
   const [results, setResults] = useState<NormalizedObservation[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
+  // Search IDs belong to one mode and coordinate request. Clear them when the
+  // request changes so cached fixture rows cannot be sent to the live API.
+  const clearSearch = () => {
+    setSearchId(null);
+    setResults([]);
+    setSelectedKeys([]);
+    setTruncated(false);
+    setErrorMsg(null);
+  };
+
+  const changeMode = (offline: boolean) => {
+    clearSearch();
+    setUseOfflineMode(offline);
+    if (offline) handleSelectPreset(CURATED_TARGETS[2]);
+  };
+
   const handleSelectPreset = (preset: TargetPreset) => {
+    clearSearch();
     setSelectedPresetId(preset.id);
     setTargetName(preset.name);
     setRa(preset.ra);
@@ -46,6 +63,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
       return;
     }
 
+    clearSearch();
     setIsSearching(true);
     try {
       const response = await searchObservations({
@@ -122,7 +140,8 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
         <div className="flex items-center space-x-2 bg-cardBg border border-borderCol rounded-lg p-1.5">
           <button
             type="button"
-            onClick={() => setUseOfflineMode(true)}
+            disabled={isSearching || isPreparing}
+            onClick={() => changeMode(true)}
             className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
               useOfflineMode
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
@@ -133,7 +152,8 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
           </button>
           <button
             type="button"
-            onClick={() => setUseOfflineMode(false)}
+            disabled={isSearching || isPreparing}
+            onClick={() => changeMode(false)}
             className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
               !useOfflineMode
                 ? 'bg-accentBlue text-white'
@@ -152,7 +172,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
             Curated Target Presets (5 Official Targets)
           </span>
           <span className="text-[11px] font-mono text-gray-500">
-            Frame: ICRS | Epoch: J2000
+            Frame: ICRS | Epoch: {activePreset?.epoch || 'Custom'}
           </span>
         </div>
 
@@ -161,6 +181,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
             <button
               key={preset.id}
               type="button"
+              disabled={isSearching || isPreparing || (useOfflineMode && preset.id !== 'wise-0855')}
               onClick={() => handleSelectPreset(preset)}
               className={`px-3.5 py-2 rounded-lg text-xs font-medium border transition-all ${
                 selectedPresetId === preset.id
@@ -190,9 +211,11 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
           <div>
             <label className="block text-xs font-mono text-gray-400 mb-1">TARGET LABEL</label>
             <input
+              disabled={isSearching || isPreparing || useOfflineMode}
               type="text"
               value={targetName}
               onChange={(e) => {
+                clearSearch();
                 setTargetName(e.target.value);
                 setSelectedPresetId('');
               }}
@@ -206,9 +229,10 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               RIGHT ASCENSION (RA)
             </label>
             <input
+              disabled={isSearching || isPreparing || useOfflineMode}
               type="text"
               value={ra}
-              onChange={(e) => setRa(e.target.value)}
+              onChange={(e) => { clearSearch(); setRa(e.target.value); setSelectedPresetId(''); }}
               placeholder="08h 55m 10.8s"
               className="w-full px-3 py-2 bg-darkBg border border-borderCol rounded-lg text-sm font-mono text-white focus:outline-none focus:border-accentBlue"
             />
@@ -219,9 +243,10 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               DECLINATION (DEC)
             </label>
             <input
+              disabled={isSearching || isPreparing || useOfflineMode}
               type="text"
               value={dec}
-              onChange={(e) => setDec(e.target.value)}
+              onChange={(e) => { clearSearch(); setDec(e.target.value); setSelectedPresetId(''); }}
               placeholder="-07° 14′ 43″"
               className="w-full px-3 py-2 bg-darkBg border border-borderCol rounded-lg text-sm font-mono text-white focus:outline-none focus:border-accentBlue"
             />
@@ -232,12 +257,13 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               SEARCH RADIUS (DEG)
             </label>
             <input
+              disabled={isSearching || isPreparing || useOfflineMode}
               type="number"
-              step="0.01"
-              min="0.01"
-              max="2.0"
+              step="0.0001"
+              min="0.0001"
+              max={MAX_RADIUS_DEG}
               value={radiusDeg}
-              onChange={(e) => setRadiusDeg(parseFloat(e.target.value) || 0.05)}
+              onChange={(e) => { clearSearch(); setRadiusDeg(parseFloat(e.target.value) || 0.01); }}
               className="w-full px-3 py-2 bg-darkBg border border-borderCol rounded-lg text-sm font-mono text-white focus:outline-none focus:border-accentBlue"
             />
           </div>
@@ -250,7 +276,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
 
           <button
             type="submit"
-            disabled={isSearching}
+            disabled={isSearching || isPreparing}
             className="px-5 py-2.5 rounded-lg bg-accentBlue hover:bg-blue-600 disabled:opacity-50 text-sm font-semibold text-white transition-colors"
           >
             {isSearching ? 'Searching SPHEREx Archive...' : 'Search Observations'}
@@ -320,7 +346,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               return (
                 <div
                   key={obs.backendSelectionKey}
-                  onClick={() => toggleSelectObservation(obs.backendSelectionKey)}
+                  onClick={() => { if (!isSearching && !isPreparing) toggleSelectObservation(obs.backendSelectionKey); }}
                   className={`cursor-pointer p-4 rounded-xl border transition-all ${
                     isSelected
                       ? 'bg-accentBlue/15 border-accentBlue'

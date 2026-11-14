@@ -271,7 +271,7 @@ export async function searchObservations(params: {
   if (params.useOfflineFallback) {
     await new Promise((r) => setTimeout(r, 400));
     return {
-      searchId: 'ae25b7204ad740579de50a6da78d0755',
+      searchId: WISE_0855_FIXTURE_RECORDS[0].search_id,
       observations: offlineFixture(),
       truncated: false,
       isOfflineMock: true,

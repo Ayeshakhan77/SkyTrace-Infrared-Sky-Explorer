@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1",
+  "search_id": "5a3841aaaf0144589da84acef5bbe50e",
+  "query": {
+    "ra_deg": 133.7951291667,
+    "dec_deg": -7.2451472222,
+    "radius_deg": 0.01,
+    "collection": "spherex_qr3",
+    "limit": 500
+  },
+  "query_url": "https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_qr3&POS=circle+133.7951291667+-7.2451472222+0.0100000000&RESPONSEFORMAT=VOTABLE",
+  "queried_at_utc": "2026-11-14T16:43:23+00:00",
+  "truncated": false,
+  "observations": [],
+  "total_rows": 0,
+  "interpretation": "Footprints overlap a fixed sky direction. Object identity, usable pixels, same-wavelength coverage and temporal comparability need inspection."
+}

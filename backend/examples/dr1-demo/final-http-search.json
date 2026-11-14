@@ -1,0 +1,10 @@
+{
+  "status_code": 502,
+  "body": {
+    "error": {
+      "code": "archive_http_error",
+      "message": "IRSA returned HTTP 502.",
+      "retryable": false
+    }
+  }
+}
