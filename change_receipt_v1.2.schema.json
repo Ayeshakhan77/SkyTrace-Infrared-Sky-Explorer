@@ -1,0 +1,696 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skytrace.spaceapps.org/schemas/change_receipt_v1.2.schema.json",
+  "title": "SKYTRACE Change Receipt Schema v1.2",
+  "description": "Formal JSON Schema specification for the proposed SKYTRACE v1.2 auditable Change Receipt, capturing search provenance, prepared observations, differential metrics, scientific validation status, and explicit limitations.",
+  "type": "object",
+  "required": [
+    "summary",
+    "target",
+    "observations",
+    "comparison",
+    "validation",
+    "findingsAndLimitations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional URI referencing the JSON Schema meta-schema."
+    },
+    "summary": {
+      "type": "object",
+      "description": "Section 1: Summary metadata including receipt identity, version, readiness state, and comparison mode.",
+      "required": [
+        "receiptId",
+        "specVersion",
+        "generatedAt",
+        "readinessStatus",
+        "comparisonMode",
+        "observationCount",
+        "sampleClassification"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "receiptId": {
+          "type": "string",
+          "pattern": "^RCPT-[A-Za-z0-9_-]+$",
+          "description": "Globally unique receipt identifier."
+        },
+        "specVersion": {
+          "type": "string",
+          "enum": ["SKYTRACE-RCPT-1.2"],
+          "description": "Specification version. Must be SKYTRACE-RCPT-1.2."
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp of receipt compilation."
+        },
+        "readinessStatus": {
+          "type": "string",
+          "enum": [
+            "search_complete",
+            "metadata_complete",
+            "fits_retrieval_available",
+            "preview_available",
+            "partial",
+            "unavailable",
+            "ready"
+          ],
+          "description": "Technical data-availability and assembly readiness status. Distinct from scientific validation."
+        },
+        "comparisonMode": {
+          "type": "string",
+          "enum": ["single", "blink", "side_by_side"],
+          "description": "Viewing mode active when the receipt was generated."
+        },
+        "observationCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2,
+          "description": "Number of prepared observations contained in this receipt (1 or 2)."
+        },
+        "sampleClassification": {
+          "type": "string",
+          "enum": ["visual_demo_sample_only"],
+          "description": "Neutral sample classification: UI demonstration sample only; no astronomical candidate classification."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional descriptive human-readable title."
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Optional statement of receipt purpose."
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "description": "Section 2: Target search provenance and celestial coordinates.",
+      "required": [
+        "targetName",
+        "requestedCoordinates",
+        "searchRadiusDeg"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "searchId": {
+          "type": ["string", "null"],
+          "description": "Backend search handle corresponding to this search context, if available."
+        },
+        "collection": {
+          "type": ["string", "null"],
+          "enum": ["spherex_dr1", "spherex_qr3", "spherex_qr2", null],
+          "description": "SPHEREx data collection queried (e.g. spherex_dr1 or spherex_qr3)."
+        },
+        "queryUrl": {
+          "type": ["string", "null"],
+          "description": "Full upstream IRSA SIA2 query URL for provenance audit, if captured."
+        },
+        "queriedAtUtc": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "UTC timestamp when the upstream query completed, if available."
+        },
+        "totalRows": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Total number of archive rows matched before client limit, if available."
+        },
+        "truncated": {
+          "type": ["boolean", "null"],
+          "description": "Whether the archive search result was truncated by query limit or server cap."
+        },
+        "searchInterpretation": {
+          "type": ["string", "null"],
+          "description": "Backend statement regarding spatial footprint overlap vs confirmed target detection."
+        },
+        "presetId": {
+          "type": ["string", "null"],
+          "description": "Preset identifier if a SKYTRACE preset was selected; null for custom coordinates."
+        },
+        "targetName": {
+          "type": "string",
+          "description": "Astronomical object name or custom pointing label."
+        },
+        "requestedCoordinates": {
+          "type": "object",
+          "description": "Coordinates submitted to the query console.",
+          "required": [
+            "raInput",
+            "decInput",
+            "raDeg",
+            "decDeg",
+            "coordinateFrame"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "raInput": {
+              "type": "string",
+              "description": "Original right ascension string as entered by user."
+            },
+            "decInput": {
+              "type": "string",
+              "description": "Original declination string as entered by user."
+            },
+            "raDeg": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMaximum": 360,
+              "description": "Decimal right ascension in degrees ICRS."
+            },
+            "decDeg": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90,
+              "description": "Decimal declination in degrees ICRS."
+            },
+            "coordinateFrame": {
+              "type": "string",
+              "default": "ICRS",
+              "description": "Reference frame, typically ICRS."
+            },
+            "coordinateSource": {
+              "type": ["string", "null"],
+              "description": "Origin of coordinate reference (e.g. SIMBAD URL, challenge brief)."
+            }
+          }
+        },
+        "epochNote": {
+          "type": ["string", "null"],
+          "description": "Statement clarifying target epoch and proper-motion propagation status."
+        },
+        "searchRadiusDeg": {
+          "type": "number",
+          "minimum": 0.0001,
+          "maximum": 0.05,
+          "description": "Cone search radius in degrees."
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "description": "Section 3: Array of prepared observation records (1 or 2 items).",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "backendSelectionKey",
+          "sourceProductId",
+          "collection",
+          "spatialInspection",
+          "qualityInspection",
+          "displayRendering",
+          "assets",
+          "provenance"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "description": "Observation index in comparison sequence (1 or 2)."
+          },
+          "backendSelectionKey": {
+            "type": "string",
+            "description": "24-character hex hash prefix derived from source URL, used for backend selection."
+          },
+          "cutoutId": {
+            "type": ["string", "null"],
+            "description": "Backend cutout handle; null if preparation was not completed."
+          },
+          "searchId": {
+            "type": ["string", "null"],
+            "description": "Parent search ID from which this observation was selected."
+          },
+          "sourceProductId": {
+            "type": "string",
+            "description": "IVO-DID product identifier."
+          },
+          "archiveObservationId": {
+            "type": ["string", "null"],
+            "description": "Upstream archive exposure ID (e.g. metadata.obs_id)."
+          },
+          "collection": {
+            "type": "string",
+            "enum": ["spherex_dr1", "spherex_qr3", "spherex_qr2"],
+            "description": "Archive release name."
+          },
+          "pipelineVersion": {
+            "type": ["string", "null"],
+            "description": "Reduction pipeline version. Null if unavailable; must not be silently scraped from URLs."
+          },
+          "detector": {
+            "type": ["string", "null"],
+            "description": "SPHEREx detector array name (D1-D6)."
+          },
+          "bandpassName": {
+            "type": ["string", "null"],
+            "description": "Energy bandpass designation."
+          },
+          "observationTimeUtc": {
+            "type": ["string", "null"],
+            "description": "Exposure start timestamp formatted in ISO 8601 UTC with explicit timezone indicator."
+          },
+          "observationEndUtc": {
+            "type": ["string", "null"],
+            "description": "Exposure end timestamp formatted in ISO 8601 UTC."
+          },
+          "mjdStart": {
+            "type": ["number", "null"],
+            "description": "Observation start in Modified Julian Date (days)."
+          },
+          "mjdEnd": {
+            "type": ["number", "null"],
+            "description": "Observation end in Modified Julian Date (days)."
+          },
+          "broadWavelengthRangeUm": {
+            "type": ["object", "null"],
+            "description": "Broad product wavelength bounds converted from meters to micrometers.",
+            "required": ["min", "max"],
+            "additionalProperties": false,
+            "properties": {
+              "min": {
+                "type": "number",
+                "description": "Short-wavelength product bound in micrometers."
+              },
+              "max": {
+                "type": "number",
+                "description": "Long-wavelength product bound in micrometers."
+              }
+            }
+          },
+          "localSpectralWcs": {
+            "type": ["object", "null"],
+            "description": "Spectral WCS evaluated at target query pixel coordinate.",
+            "required": [
+              "evaluated",
+              "wavelengthCenterUm",
+              "bandwidthUm",
+              "positionBasis"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "evaluated": {
+                "type": "boolean",
+                "description": "Whether spectral WCS was evaluated."
+              },
+              "wavelengthCenterUm": {
+                "type": ["number", "null"],
+                "description": "Central wavelength in micrometers at query pixel; null if evaluable."
+              },
+              "bandwidthUm": {
+                "type": ["number", "null"],
+                "description": "Spectral bandwidth in micrometers at query pixel; null if evaluable."
+              },
+              "positionBasis": {
+                "type": "string",
+                "enum": ["fixed_query_position", "unavailable"],
+                "description": "Position basis for spectral WCS evaluation."
+              },
+              "status": {
+                "type": "string",
+                "description": "Backend status string (e.g. spectral_wcs_evaluated or not_assessed)."
+              },
+              "reason": {
+                "type": ["string", "null"],
+                "description": "Backend explanatory note."
+              }
+            }
+          },
+          "spatialInspection": {
+            "type": "object",
+            "description": "Spatial inspection and pixel dimensions.",
+            "required": [
+              "hasCelestialWcs",
+              "pixelDimensions",
+              "alignmentStatus"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "hasCelestialWcs": {
+                "type": "boolean",
+                "description": "Whether celestial WCS header is present."
+              },
+              "pixelDimensions": {
+                "type": "object",
+                "required": ["width", "height"],
+                "additionalProperties": false,
+                "properties": {
+                  "width": { "type": "integer" },
+                  "height": { "type": "integer" }
+                }
+              },
+              "physicalUnit": {
+                "type": ["string", "null"],
+                "description": "Calibrated surface brightness unit (e.g. MJy / sr)."
+              },
+              "queryPixelCoordinates": {
+                "type": ["object", "null"],
+                "required": ["x", "y"],
+                "additionalProperties": false,
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" }
+                }
+              },
+              "queryPositionInsideCutout": {
+                "type": ["boolean", "null"],
+                "description": "Whether query coordinate lies within the cutout pixel bounding box."
+              },
+              "alignmentStatus": {
+                "type": "string",
+                "enum": ["not_assessed", "supported", "unsupported", "inconclusive"],
+                "description": "Astrometric common-grid registration status. Always not_assessed at baseline."
+              }
+            }
+          },
+          "qualityInspection": {
+            "type": "object",
+            "description": "Quality mask and variance summaries.",
+            "required": [
+              "qualityStatus",
+              "flagsPresent",
+              "variancePresent"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "qualityStatus": {
+                "type": "string",
+                "enum": ["not_assessed", "supported", "unsupported", "inconclusive"],
+                "description": "Data quality assessment status. Always not_assessed at baseline."
+              },
+              "flagsPresent": {
+                "type": "boolean",
+                "description": "Whether FLAGS extension was present in FITS file."
+              },
+              "nonzeroFlagFraction": {
+                "type": ["number", "null"],
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Fraction of pixels with any non-zero flag bit. Not a bad-pixel fraction."
+              },
+              "nonfiniteFraction": {
+                "type": ["number", "null"],
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Fraction of non-finite (NaN/Inf) pixels in image crop."
+              },
+              "variancePresent": {
+                "type": "boolean",
+                "description": "Whether VARIANCE extension was present in FITS file."
+              },
+              "varianceUnit": {
+                "type": ["string", "null"],
+                "description": "Variance unit (e.g. MJy2 / sr2)."
+              }
+            }
+          },
+          "displayRendering": {
+            "type": "object",
+            "description": "Display scaling parameters applied to generate PNG preview.",
+            "required": [
+              "mode",
+              "origin",
+              "brightnessComparisonValidated"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["per_image_asinh"],
+                "description": "Display stretch algorithm."
+              },
+              "percentileLow": { "type": ["integer", "null"] },
+              "percentileHigh": { "type": ["integer", "null"] },
+              "valueLow": { "type": ["number", "null"] },
+              "valueHigh": { "type": ["number", "null"] },
+              "origin": {
+                "type": "string",
+                "enum": ["lower"],
+                "description": "Image coordinate origin."
+              },
+              "brightnessComparisonValidated": {
+                "type": "boolean",
+                "enum": [false],
+                "description": "Hardcoded false: per-image display scaling prevents cross-image flux comparison."
+              }
+            }
+          },
+          "assets": {
+            "type": "object",
+            "description": "Asset routes and cryptographic availability states.",
+            "required": [
+              "fitsAvailability",
+              "previewAvailability"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "originalFitsUrl": {
+                "type": ["string", "null"],
+                "description": "Local/proxy route to original FITS product."
+              },
+              "previewPngUrl": {
+                "type": ["string", "null"],
+                "description": "Local/proxy route to rendered preview PNG."
+              },
+              "sha256": {
+                "type": ["string", "null"],
+                "description": "Cryptographic SHA-256 hash supplied by backend for original FITS."
+              },
+              "byteCount": {
+                "type": ["integer", "null"],
+                "description": "Byte count of FITS product."
+              },
+              "fitsAvailability": {
+                "type": "string",
+                "enum": ["available", "unavailable", "pending"]
+              },
+              "previewAvailability": {
+                "type": "string",
+                "enum": ["available", "unavailable", "pending", "load_failed"]
+              },
+              "checksumVerification": {
+                "type": ["object", "null"],
+                "required": [
+                  "suppliedByBackend",
+                  "browserIndependentlyVerified"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "suppliedByBackend": { "type": "boolean" },
+                  "browserIndependentlyVerified": {
+                    "type": "boolean",
+                    "enum": [false],
+                    "description": "Hardcoded false: browser does not independently verify FITS checksums."
+                  }
+                }
+              }
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "description": "Archive provenance links and download timestamps.",
+            "required": ["sourceUrl"],
+            "additionalProperties": false,
+            "properties": {
+              "sourceUrl": {
+                "type": "string",
+                "description": "Full remote download URL at NASA/IPAC Caltech archive."
+              },
+              "cutoutRetrievalUrl": {
+                "type": ["string", "null"],
+                "description": "Full remote cutout query URL used by backend."
+              },
+              "retrievedAtUtc": {
+                "type": ["string", "null"],
+                "format": "date-time",
+                "description": "UTC timestamp of backend download completion."
+              }
+            }
+          }
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "description": "Section 4: Descriptive comparison metrics between two observations (descriptive only; does not establish scientific comparability).",
+      "required": [
+        "isComparisonApplicable",
+        "commonSkyGridRegistered",
+        "psfMatched",
+        "photometricallyCalibrated"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "isComparisonApplicable": {
+          "type": "boolean",
+          "description": "True if two observations were prepared; false for single observation."
+        },
+        "temporalSeparationDays": {
+          "type": ["number", "null"],
+          "description": "Descriptive elapsed time in days between exposure midpoints."
+        },
+        "wavelengthDifferenceUm": {
+          "type": ["number", "null"],
+          "description": "Descriptive difference between local central wavelengths in micrometers."
+        },
+        "bandwidthOverlapUm": {
+          "type": ["number", "null"],
+          "description": "Descriptive spectral overlap of nominal passbands in micrometers."
+        },
+        "detectorMatch": {
+          "type": ["boolean", "null"],
+          "description": "Whether both observations share the same physical detector (e.g. D1)."
+        },
+        "pipelineGenerationMatch": {
+          "type": ["boolean", "null"],
+          "description": "Whether both observations share the same pipeline major release (e.g. v27)."
+        },
+        "commonSkyGridRegistered": {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Hardcoded false: images are not resampled onto a common celestial grid."
+        },
+        "psfMatched": {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Hardcoded false: no PSF matching cross-convolution kernel was applied."
+        },
+        "photometricallyCalibrated": {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Hardcoded false: no cross-epoch relative photometric calibration was performed."
+        },
+        "descriptiveNote": {
+          "type": ["string", "null"],
+          "description": "Statement emphasizing that comparison metrics are purely descriptive."
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "description": "Section 5: Scientific validation matrix covering ten distinct physical checks.",
+      "required": ["checks"],
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "type": "object",
+          "required": [
+            "identityAssessment",
+            "properMotionPropagation",
+            "wavelengthCompatibility",
+            "calibrationCompatibility",
+            "wcsRegistration",
+            "psfMatching",
+            "qualityMaskInterpretation",
+            "photometricValidation",
+            "brightnessChangeAssessment",
+            "motionAssessment"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identityAssessment": { "$ref": "#/$defs/ValidationCheck" },
+            "properMotionPropagation": { "$ref": "#/$defs/ValidationCheck" },
+            "wavelengthCompatibility": { "$ref": "#/$defs/ValidationCheck" },
+            "calibrationCompatibility": { "$ref": "#/$defs/ValidationCheck" },
+            "wcsRegistration": { "$ref": "#/$defs/ValidationCheck" },
+            "psfMatching": { "$ref": "#/$defs/ValidationCheck" },
+            "qualityMaskInterpretation": { "$ref": "#/$defs/ValidationCheck" },
+            "photometricValidation": { "$ref": "#/$defs/ValidationCheck" },
+            "brightnessChangeAssessment": { "$ref": "#/$defs/ValidationCheck" },
+            "motionAssessment": { "$ref": "#/$defs/ValidationCheck" }
+          }
+        }
+      }
+    },
+    "findingsAndLimitations": {
+      "type": "object",
+      "description": "Section 6: Findings, explicit limitations, operational warnings, and data citations.",
+      "required": [
+        "isDiscoveryClaimed",
+        "recordClassification",
+        "sampleClassification",
+        "candidateNotice",
+        "warnings",
+        "limitations",
+        "dataAcknowledgment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "isDiscoveryClaimed": {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Hardcoded false: SKYTRACE does not certify astronomical discoveries."
+        },
+        "recordClassification": {
+          "type": "string",
+          "enum": ["auditable_provenance_record", "exportable_provenance_record"],
+          "description": "Document classification. Not an astronomical classification."
+        },
+        "sampleClassification": {
+          "type": "string",
+          "enum": ["visual_demo_sample_only"],
+          "description": "Sample classification: UI demonstration sample only."
+        },
+        "candidateNotice": {
+          "type": "string",
+          "description": "Prominent notice stating that no astronomical candidate classification is made."
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Operational warnings preserved from backend inspection."
+        },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Explicit scientific limitations prohibiting unverified change claims."
+        },
+        "dataAcknowledgment": {
+          "type": "string",
+          "description": "Formal citation acknowledging NASA Space Apps, SPHEREx, and IPAC/IRSA."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ValidationCheck": {
+      "type": "object",
+      "required": [
+        "status",
+        "reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["not_assessed", "supported", "unsupported", "inconclusive"],
+          "description": "Controlled status vocabulary. In v1.2, all checks default to not_assessed."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Detailed explanation of why this check is assigned its status."
+        },
+        "evidenceSource": {
+          "type": ["string", "null"],
+          "description": "Reference to reproducible evidence; null if unassessed."
+        },
+        "method": {
+          "type": ["string", "null"],
+          "description": "Scientific analysis method; null if unassessed."
+        },
+        "assessedAtUtc": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp when assessment was performed; null if unassessed."
+        }
+      }
+    }
+  }
+}
