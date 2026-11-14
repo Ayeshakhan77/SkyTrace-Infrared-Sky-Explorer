@@ -14,8 +14,8 @@
   "target": {
     "searchId": "6181c3f6c93b4a588dea56a1200b3f5c",
     "collection": "spherex_dr1",
-    "queryUrl": "https://irsa.ipac.caltech.edu/IBE/sia.py?COLLECTION=spherex_dr1&POS=CIRCLE+133.7951291667+-7.2451472222+0.010000",
-    "queriedAtUtc": "2026-11-14T16:51:30Z",
+    "queryUrl": "https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+133.7951291667+-7.2451472222+0.0100000000&RESPONSEFORMAT=VOTABLE",
+    "queriedAtUtc": "2026-11-14T16:51:00+00:00",
     "totalRows": 258,
     "truncated": false,
     "searchInterpretation": "Footprints overlap a fixed sky direction. Object identity, usable pixels, same-wavelength coverage and temporal comparability need inspection.",
@@ -192,7 +192,7 @@
     "wavelengthDifferenceUm": 0.023146,
     "bandwidthOverlapUm": 0.00264,
     "detectorMatch": true,
-    "pipelineGenerationMatch": true,
+    "pipelineGenerationMatch": null,
     "commonSkyGridRegistered": false,
     "psfMatched": false,
     "photometricallyCalibrated": false,
@@ -294,3 +294,4 @@
     "dataAcknowledgment": "NASA Space Apps Challenge 2026 - Planet X and SPHEREx | Data from NASA/IPAC Infrared Science Archive (IRSA)"
   }
 }
+
