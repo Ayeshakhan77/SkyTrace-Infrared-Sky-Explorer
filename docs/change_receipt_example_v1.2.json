@@ -1,0 +1,296 @@
+{
+  "$schema": "https://skytrace.spaceapps.org/schemas/change_receipt_v1.2.schema.json",
+  "summary": {
+    "receiptId": "RCPT-20261114-DR1-WISE0855-DEMO",
+    "specVersion": "SKYTRACE-RCPT-1.2",
+    "generatedAt": "2026-11-14T23:45:00Z",
+    "readinessStatus": "preview_available",
+    "comparisonMode": "blink",
+    "observationCount": 2,
+    "sampleClassification": "visual_demo_sample_only",
+    "title": "SPHEREx DR1 Dual-Epoch Observation Comparison",
+    "purpose": "Citizen science sample inspection and exportable provenance audit"
+  },
+  "target": {
+    "searchId": "6181c3f6c93b4a588dea56a1200b3f5c",
+    "collection": "spherex_dr1",
+    "queryUrl": "https://irsa.ipac.caltech.edu/IBE/sia.py?COLLECTION=spherex_dr1&POS=CIRCLE+133.7951291667+-7.2451472222+0.010000",
+    "queriedAtUtc": "2026-11-14T16:51:30Z",
+    "totalRows": 258,
+    "truncated": false,
+    "searchInterpretation": "Footprints overlap a fixed sky direction. Object identity, usable pixels, same-wavelength coverage and temporal comparability need inspection.",
+    "presetId": "wise-0855",
+    "targetName": "WISE 0855",
+    "requestedCoordinates": {
+      "raInput": "08h 55m 10.831s",
+      "decInput": "-07d 14m 42.53s",
+      "raDeg": 133.7951291667,
+      "decDeg": -7.2451472222,
+      "coordinateFrame": "ICRS",
+      "coordinateSource": "Official NASA Space Apps Challenge 2026 Brief"
+    },
+    "epochNote": "Fixed official challenge coordinates (converted from 08h 55m 10.831s, -07d 14m 42.53s); target proper motion (~8.1 arcsec/yr) is unpropagated.",
+    "searchRadiusDeg": 0.01
+  },
+  "observations": [
+    {
+      "index": 1,
+      "backendSelectionKey": "c00f1baab5dbf1ca8cabe4d5",
+      "cutoutId": "50564d11d67c41de9deb9a88af808c90",
+      "searchId": "6181c3f6c93b4a588dea56a1200b3f5c",
+      "sourceProductId": "ivo://irsa.ipac/spherex_dr1?2025W19_1B_0241_1/D1",
+      "archiveObservationId": "2025W19_1B_0241_1",
+      "collection": "spherex_dr1",
+      "pipelineVersion": null,
+      "detector": "D1",
+      "bandpassName": "SPHEREx-D1",
+      "observationTimeUtc": "2025-05-06T12:20:24.888Z",
+      "observationEndUtc": "2025-05-06T12:22:20.006Z",
+      "mjdStart": 60801.514177,
+      "mjdEnd": 60801.515509,
+      "broadWavelengthRangeUm": {
+        "min": 0.7455,
+        "max": 1.1167
+      },
+      "localSpectralWcs": {
+        "evaluated": true,
+        "wavelengthCenterUm": 0.993667,
+        "bandwidthUm": 0.026387,
+        "positionBasis": "fixed_query_position",
+        "status": "spectral_wcs_evaluated",
+        "reason": "WCS W evaluated at the fixed query position, using declared axis units."
+      },
+      "spatialInspection": {
+        "hasCelestialWcs": true,
+        "pixelDimensions": {
+          "width": 18,
+          "height": 18
+        },
+        "physicalUnit": "MJy / sr",
+        "queryPixelCoordinates": {
+          "x": 8.438,
+          "y": 8.17
+        },
+        "queryPositionInsideCutout": true,
+        "alignmentStatus": "not_assessed"
+      },
+      "qualityInspection": {
+        "qualityStatus": "not_assessed",
+        "flagsPresent": true,
+        "nonzeroFlagFraction": 0.459877,
+        "nonfiniteFraction": 0.0,
+        "variancePresent": true,
+        "varianceUnit": "MJy2 / sr2"
+      },
+      "displayRendering": {
+        "mode": "per_image_asinh",
+        "percentileLow": 1,
+        "percentileHigh": 99,
+        "valueLow": 0.191691,
+        "valueHigh": 1.498914,
+        "origin": "lower",
+        "brightnessComparisonValidated": false
+      },
+      "assets": {
+        "originalFitsUrl": "/v1/cutouts/50564d11d67c41de9deb9a88af808c90/source.fits",
+        "previewPngUrl": "/v1/cutouts/50564d11d67c41de9deb9a88af808c90/preview.png",
+        "sha256": "debce6fcefb401e370a406c0a6ab89a835005bc9349d4d827b49b22790c98ae5",
+        "byteCount": 3954240,
+        "fitsAvailability": "available",
+        "previewAvailability": "available",
+        "checksumVerification": {
+          "suppliedByBackend": true,
+          "browserIndependentlyVerified": false
+        }
+      },
+      "provenance": {
+        "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits",
+        "cutoutRetrievalUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits?center=133.7951291667%2C-7.2451472222&size=0.030000",
+        "retrievedAtUtc": "2026-11-14T17:05:50Z"
+      }
+    },
+    {
+      "index": 2,
+      "backendSelectionKey": "a1fc7c6290e1280c4d895834",
+      "cutoutId": "9a225183ed62473e9da70d3118a077c7",
+      "searchId": "6181c3f6c93b4a588dea56a1200b3f5c",
+      "sourceProductId": "ivo://irsa.ipac/spherex_dr1?2026W19_1A_0201_1/D1",
+      "archiveObservationId": "2026W19_1A_0201_1",
+      "collection": "spherex_dr1",
+      "pipelineVersion": null,
+      "detector": "D1",
+      "bandpassName": "SPHEREx-D1",
+      "observationTimeUtc": "2026-05-04T13:40:56.452Z",
+      "observationEndUtc": "2026-05-04T13:42:51.570Z",
+      "mjdStart": 61164.570098,
+      "mjdEnd": 61164.57143,
+      "broadWavelengthRangeUm": {
+        "min": 0.7455,
+        "max": 1.1167
+      },
+      "localSpectralWcs": {
+        "evaluated": true,
+        "wavelengthCenterUm": 0.970521,
+        "bandwidthUm": 0.02518,
+        "positionBasis": "fixed_query_position",
+        "status": "spectral_wcs_evaluated",
+        "reason": "WCS W evaluated at the fixed query position, using declared axis units."
+      },
+      "spatialInspection": {
+        "hasCelestialWcs": true,
+        "pixelDimensions": {
+          "width": 18,
+          "height": 18
+        },
+        "physicalUnit": "MJy / sr",
+        "queryPixelCoordinates": {
+          "x": 8.697,
+          "y": 8.812
+        },
+        "queryPositionInsideCutout": true,
+        "alignmentStatus": "not_assessed"
+      },
+      "qualityInspection": {
+        "qualityStatus": "not_assessed",
+        "flagsPresent": true,
+        "nonzeroFlagFraction": 0.441358,
+        "nonfiniteFraction": 0.0,
+        "variancePresent": true,
+        "varianceUnit": "MJy2 / sr2"
+      },
+      "displayRendering": {
+        "mode": "per_image_asinh",
+        "percentileLow": 1,
+        "percentileHigh": 99,
+        "valueLow": 0.190985,
+        "valueHigh": 2.517572,
+        "origin": "lower",
+        "brightnessComparisonValidated": false
+      },
+      "assets": {
+        "originalFitsUrl": "/v1/cutouts/9a225183ed62473e9da70d3118a077c7/source.fits",
+        "previewPngUrl": "/v1/cutouts/9a225183ed62473e9da70d3118a077c7/preview.png",
+        "sha256": "fbac143cfbe73b83d2233b5d209cbc66725ed35da86b4ba7a7a958cfdd1f0580",
+        "byteCount": 3954240,
+        "fitsAvailability": "available",
+        "previewAvailability": "available",
+        "checksumVerification": {
+          "suppliedByBackend": true,
+          "browserIndependentlyVerified": false
+        }
+      },
+      "provenance": {
+        "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits",
+        "cutoutRetrievalUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/1/level2_2026W19_1A_0201_1D1_spx_l2b-v27-2026-245.fits?center=133.7951291667%2C-7.2451472222&size=0.030000",
+        "retrievedAtUtc": "2026-11-14T17:06:04Z"
+      }
+    }
+  ],
+  "comparison": {
+    "isComparisonApplicable": true,
+    "temporalSeparationDays": 363.0559,
+    "wavelengthDifferenceUm": 0.023146,
+    "bandwidthOverlapUm": 0.00264,
+    "detectorMatch": true,
+    "pipelineGenerationMatch": true,
+    "commonSkyGridRegistered": false,
+    "psfMatched": false,
+    "photometricallyCalibrated": false,
+    "descriptiveNote": "Values are descriptive metrics of the observation sample only; they do not establish scientific comparability."
+  },
+  "validation": {
+    "checks": {
+      "identityAssessment": {
+        "status": "not_assessed",
+        "reason": "Target identity in cutout is unconfirmed; fixed coordinates do not account for WISE 0855 proper motion (~8.1 arcsec/yr).",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "properMotionPropagation": {
+        "status": "not_assessed",
+        "reason": "Target coordinates were not propagated from discovery epoch to 2025.35 and 2026.34 observation epochs.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "wavelengthCompatibility": {
+        "status": "not_assessed",
+        "reason": "Local central wavelengths differ by 0.0231 µm (23.1 nm). WCS-WAVE is intended for display; dedicated CWAVE calibration is unassessed.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "calibrationCompatibility": {
+        "status": "not_assessed",
+        "reason": "Background subtraction and zero-point calibration compatibility are unverified across these observation epochs.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "wcsRegistration": {
+        "status": "not_assessed",
+        "reason": "Images are displayed in native detector pixel grids; no sub-pixel cross-registration or SIP distortion correction was performed.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "psfMatching": {
+        "status": "not_assessed",
+        "reason": "No convolution kernel was applied to match the point spread functions of the two epochs.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "qualityMaskInterpretation": {
+        "status": "not_assessed",
+        "reason": "DR1 level-2b headers lack MP_* bit definitions; raw flag bits remain undecoded.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "photometricValidation": {
+        "status": "not_assessed",
+        "reason": "Per-image asinh stretch was applied for visualization; pixel values are uncalibrated for flux comparison.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "brightnessChangeAssessment": {
+        "status": "not_assessed",
+        "reason": "Dependent on wavelength, calibration, and photometric comparability checks which remain unassessed.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      },
+      "motionAssessment": {
+        "status": "not_assessed",
+        "reason": "Apparent spatial shift between images cannot be attributed to target motion without sub-pixel registration and target identification.",
+        "evidenceSource": null,
+        "method": null,
+        "assessedAtUtc": null
+      }
+    }
+  },
+  "findingsAndLimitations": {
+    "isDiscoveryClaimed": false,
+    "recordClassification": "exportable_provenance_record",
+    "sampleClassification": "visual_demo_sample_only",
+    "candidateNotice": "UI demonstration sample; no astronomical candidate classification.",
+    "warnings": [
+      "This is a display-only preview; the source FITS remains the scientific data product.",
+      "The query is a fixed sky position; object identity and proper-motion tracking have not been confirmed.",
+      "WCS alignment, PSF matching, spectral compatibility and photometric comparison have not been assessed.",
+      "The display stretch is per image; preview brightness must not be used to measure changes.",
+      "Flag counts describe the raw bitmask. A nonzero flag is not automatically an unusable pixel; SOURCE and other flags have different meanings.",
+      "Image quality has not been approved for scientific comparison; flags and variance require interpretation.",
+      "FLAGS has no usable MP_* definitions in its header; bit meanings remain unknown."
+    ],
+    "limitations": [
+      "A preview is a display rendering, not a new measurement or object identification.",
+      "No cross-image registration, PSF matching, photometric comparison or motion detection was performed.",
+      "Broad archive wavelength bounds do not prove the same band at the target position."
+    ],
+    "dataAcknowledgment": "NASA Space Apps Challenge 2026 - Planet X and SPHEREx | Data from NASA/IPAC Infrared Science Archive (IRSA)"
+  }
+}
