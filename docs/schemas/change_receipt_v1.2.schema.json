@@ -550,7 +550,7 @@
         },
         "pipelineGenerationMatch": {
           "type": ["boolean", "null"],
-          "description": "Whether both observations share the same pipeline major release (e.g. v27)."
+          "description": "Whether both observations share the same pipeline major release. Use null when either pipeline version is unavailable or unverified; do not infer a match from null values."
         },
         "commonSkyGridRegistered": {
           "type": "boolean",
@@ -659,6 +659,61 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"observationCount": {"const": 1}},
+            "required": ["observationCount"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "observations": {
+            "minItems": 1,
+            "maxItems": 1,
+            "prefixItems": [
+              {"properties": {"index": {"const": 1}}, "required": ["index"]}
+            ]
+          },
+          "comparison": {
+            "properties": {"isComparisonApplicable": {"const": false}},
+            "required": ["isComparisonApplicable"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"observationCount": {"const": 2}},
+            "required": ["observationCount"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "observations": {
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {"properties": {"index": {"const": 1}}, "required": ["index"]},
+              {"properties": {"index": {"const": 2}}, "required": ["index"]}
+            ]
+          },
+          "comparison": {
+            "properties": {"isComparisonApplicable": {"const": true}},
+            "required": ["isComparisonApplicable"]
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "ValidationCheck": {
       "type": "object",
@@ -694,3 +749,4 @@
     }
   }
 }
+
