@@ -739,7 +739,7 @@
               "type": "string"
             },
             "type": "array",
-            "maxItems": 2,
+            "maxItems": 4,
             "minItems": 1,
             "title": "Observation Ids"
           },

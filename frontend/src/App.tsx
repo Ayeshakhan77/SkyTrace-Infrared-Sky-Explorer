@@ -1,32 +1,58 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import QueryConsole from './components/QueryConsole';
 import AssetViewer from './components/AssetViewer';
 import ChangeReceipt from './components/ChangeReceipt';
-import { NormalizedObservation } from './types/observation';
+import { NormalizedObservation, SearchContext } from './types/observation';
+import { parseUrlParams, updateUrlParams } from './services/urlParams';
+import { offlineFixture } from './services/api';
 
 type ActiveTab = 'search' | 'viewer' | 'receipt';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('search');
-  const [preparedObservations, setPreparedObservations] = useState<NormalizedObservation[]>([]);
+  const initialUrl = useMemo(() => parseUrlParams(), []);
+  const [activeTab, setActiveTab] = useState<ActiveTab>(initialUrl.tab || 'search');
+  // Preload real offline fixture cutouts so multi-epoch playback is ready immediately on launch
+  const [preparedObservations, setPreparedObservations] = useState<NormalizedObservation[]>(() => offlineFixture());
   const [comparisonMode, setComparisonMode] = useState<'single' | 'blink' | 'side_by_side'>('blink');
-  const [searchContext, setSearchContext] = useState({
-    targetName: 'WISE 0855',
-    ra: '08h 55m 10.8s',
-    dec: '-07° 14′ 43″',
+  const [searchContext, setSearchContext] = useState<SearchContext>({
+    targetName: initialUrl.target || initialUrl.preset?.name || 'WISE 0855',
+    ra: initialUrl.ra || initialUrl.preset?.ra || '08h 55m 10.8s',
+    dec: initialUrl.dec || initialUrl.preset?.dec || '-07° 14′ 43″',
+    radiusDeg: initialUrl.radiusDeg || 0.01,
+    collection: initialUrl.collection || 'spherex_dr1',
     isOffline: true,
+    totalRows: 258,
+    queryUrl: 'https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+133.7951291667+-7.2451472222+0.01&RESPONSEFORMAT=VOTABLE',
+    queriedAtUtc: '2026-11-14T16:51:30+00:00',
+    searchInterpretation: 'Footprints overlap a fixed sky direction. Offline demonstration fixture using reprocessed DR1 products.',
   });
+
+  const switchTab = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    updateUrlParams({ tab });
+  };
 
   const handleObservationsPrepared = (
     prepared: NormalizedObservation[],
-    context: { targetName: string; ra: string; dec: string; isOffline: boolean }
+    context: SearchContext
   ) => {
     setPreparedObservations(prepared);
     setSearchContext(context);
     // Automatically default to blink mode if 2 observations are prepared, otherwise single
     setComparisonMode(prepared.length >= 2 ? 'blink' : 'single');
-    setActiveTab('viewer');
+    switchTab('viewer');
   };
+
+  useEffect(() => {
+    // Keep URL parameter synchronized on initial mount
+    updateUrlParams({
+      tab: activeTab,
+      target: searchContext.targetName,
+      ra: searchContext.ra,
+      dec: searchContext.dec,
+      collection: searchContext.collection,
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-darkBg text-gray-100 flex flex-col">
@@ -53,7 +79,7 @@ export default function App() {
         <nav className="flex items-center space-x-2 bg-darkBg p-1 rounded-xl border border-borderCol">
           <button
             type="button"
-            onClick={() => setActiveTab('search')}
+            onClick={() => switchTab('search')}
             className={`px-4 py-2 rounded-lg text-xs font-mono transition-colors ${
               activeTab === 'search'
                 ? 'bg-accentBlue text-white font-semibold'
@@ -65,7 +91,7 @@ export default function App() {
 
           <button
             type="button"
-            onClick={() => setActiveTab('viewer')}
+            onClick={() => switchTab('viewer')}
             className={`px-4 py-2 rounded-lg text-xs font-mono transition-colors flex items-center space-x-1.5 ${
               activeTab === 'viewer'
                 ? 'bg-accentBlue text-white font-semibold'
@@ -82,7 +108,7 @@ export default function App() {
 
           <button
             type="button"
-            onClick={() => setActiveTab('receipt')}
+            onClick={() => switchTab('receipt')}
             className={`px-4 py-2 rounded-lg text-xs font-mono transition-colors ${
               activeTab === 'receipt'
                 ? 'bg-accentBlue text-white font-semibold'
@@ -98,7 +124,10 @@ export default function App() {
       <main className="flex-1 p-6 md:p-8 flex justify-center">
         <div className="w-full max-w-6xl">
           {activeTab === 'search' && (
-            <QueryConsole onObservationsPrepared={handleObservationsPrepared} />
+            <QueryConsole
+              onObservationsPrepared={handleObservationsPrepared}
+              initialParams={initialUrl}
+            />
           )}
 
           {activeTab === 'viewer' && (
@@ -106,7 +135,8 @@ export default function App() {
               observations={preparedObservations}
               comparisonMode={comparisonMode}
               onComparisonModeChange={setComparisonMode}
-              onOpenReceipt={() => setActiveTab('receipt')}
+              onOpenReceipt={() => switchTab('receipt')}
+              onSwitchToSearch={() => switchTab('search')}
             />
           )}
 

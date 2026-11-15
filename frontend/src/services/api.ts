@@ -22,11 +22,25 @@ export const API_BASE_URL =
 // IRSA made QR2 unsearchable via SIA2 in Nov 2026 ("DR1 and QR3 together supersede QR2").
 // QR2 files stay downloadable until Feb 2027, so the cached QR2 offline fixture still works.
 export const DEFAULT_COLLECTION = 'spherex_dr1';
+export const SUPPORTED_COLLECTIONS = [
+  {
+    id: 'spherex_dr1',
+    label: 'SPHEREx DR1 (Surveys 1–2, Standard)',
+    description: 'First public data release. Reprocessed Surveys 1 & 2 under pipeline v27.',
+  },
+  {
+    id: 'spherex_qr3',
+    label: 'SPHEREx QR3 (Surveys 3–4, Quick Release)',
+    description: 'Quick-release observations covering Surveys 3 & 4.',
+  },
+] as const;
+
 export const MAX_RADIUS_DEG = 0.05;
 export const DEFAULT_CUTOUT_SIZE_DEG = 0.03;
 
 export interface SearchResponse {
   searchId: string;
+  collection: string;
   observations: NormalizedObservation[];
   truncated: boolean;
   totalRows?: number;
@@ -118,31 +132,93 @@ export function resolveAssetUrl(path?: string | null): string | undefined {
 
 // ---------- coordinate + unit helpers ----------
 
-/** Accepts decimal degrees ("133.795") or sexagesimal ("08h 55m 10.8s", "08:55:10.8"). */
+/** Normalizes minus signs and non-standard whitespace */
+function sanitizeCoordString(input: string): string {
+  return input
+    .trim()
+    .replace(/[−–—\u2212\u2013\u2014]/g, '-')
+    .replace(/\s+/g, ' ');
+}
+
+/** Accepts decimal degrees ("133.795") or sexagesimal ("08h 55m 10.8s", "08:55:10.8", "08 55 10.8"). */
 export function parseRa(input: string): number {
-  const s = input.trim();
-  if (/^[+-]?\d+(\.\d+)?$/.test(s)) return validateRange(Number(s), 0, 360, 'RA');
+  const s = sanitizeCoordString(input);
+  if (!s) throw new ApiError('Right Ascension (RA) cannot be empty', 0, 'invalid_input');
+
+  // Pure decimal format
+  if (/^[+]?\d+(\.\d+)?$/.test(s)) {
+    return validateRange(Number(s), 0, 360, 'RA', true);
+  }
+
+  // Sexagesimal format (hours, minutes, seconds)
   const parts = s.match(/[\d.]+/g)?.map(Number);
-  if (!parts || parts.length < 1 || parts.length > 3) throw new ApiError(`Unrecognised RA "${input}"`, 0, 'invalid_input');
+  if (!parts || parts.length < 1 || parts.length > 3) {
+    throw new ApiError(`Unrecognised RA format "${input}". Expected decimal (e.g. 133.795) or sexagesimal (e.g. 08h 55m 10.8s)`, 0, 'invalid_input');
+  }
+
   const [h, m = 0, sec = 0] = parts;
-  return validateRange((h + m / 60 + sec / 3600) * 15, 0, 360, 'RA');
+  if (h < 0 || h >= 24) {
+    throw new ApiError(`RA hour component must be between 0 and 24, got ${h}`, 0, 'invalid_input');
+  }
+  if (m < 0 || m >= 60 || sec < 0 || sec >= 60) {
+    throw new ApiError('RA minutes and seconds must be between 0 and 60', 0, 'invalid_input');
+  }
+
+  return validateRange((h + m / 60 + sec / 3600) * 15, 0, 360, 'RA', true);
 }
 
+/** Accepts decimal degrees ("-7.245", "+30.4") or sexagesimal ("-07d 14m 42.5s", "-07:14:42.5", "+04° 46′ 05″"). */
 export function parseDec(input: string): number {
-  const s = input.trim();
-  if (/^[+-]?\d+(\.\d+)?$/.test(s)) return validateRange(Number(s), -90, 90, 'Dec');
-  const sign = /^\s*[-−–]/.test(s) ? -1 : 1;
+  const s = sanitizeCoordString(input);
+  if (!s) throw new ApiError('Declination (Dec) cannot be empty', 0, 'invalid_input');
+
+  // Pure decimal format
+  if (/^[+-]?\d+(\.\d+)?$/.test(s)) {
+    return validateRange(Number(s), -90, 90, 'Dec', false);
+  }
+
+  const sign = /^\s*[-]/.test(s) ? -1 : 1;
   const parts = s.match(/[\d.]+/g)?.map(Number);
-  if (!parts || parts.length < 1 || parts.length > 3) throw new ApiError(`Unrecognised Dec "${input}"`, 0, 'invalid_input');
+  if (!parts || parts.length < 1 || parts.length > 3) {
+    throw new ApiError(`Unrecognised Dec format "${input}". Expected decimal (e.g. -7.245) or sexagesimal (e.g. -07d 14m 42.5s)`, 0, 'invalid_input');
+  }
+
   const [d, m = 0, sec = 0] = parts;
-  return validateRange(sign * (d + m / 60 + sec / 3600), -90, 90, 'Dec');
+  if (d < 0 || d > 90) {
+    throw new ApiError(`Dec degree component must be between 0 and 90, got ${d}`, 0, 'invalid_input');
+  }
+  if (m < 0 || m >= 60 || sec < 0 || sec >= 60) {
+    throw new ApiError('Dec minutes and seconds must be between 0 and 60', 0, 'invalid_input');
+  }
+
+  return validateRange(sign * (d + m / 60 + sec / 3600), -90, 90, 'Dec', false);
 }
 
-function validateRange(v: number, lo: number, hi: number, label: string): number {
-  if (!Number.isFinite(v) || v < lo || v > hi) {
-    throw new ApiError(`${label} must be between ${lo} and ${hi} degrees`, 0, 'invalid_input');
+function validateRange(v: number, lo: number, hi: number, label: string, exclusiveHigh = false): number {
+  const isOutOfRange = exclusiveHigh
+    ? !Number.isFinite(v) || v < lo || v >= hi
+    : !Number.isFinite(v) || v < lo || v > hi;
+  if (isOutOfRange) {
+    throw new ApiError(
+      `${label} must be ${exclusiveHigh ? `>= ${lo} and < ${hi}` : `between ${lo} and ${hi}`} degrees, got ${v.toFixed(4)}°`,
+      0,
+      'invalid_input'
+    );
   }
   return v;
+}
+
+export function validateCoordinates(
+  raInput: string,
+  decInput: string
+): { isValid: boolean; raDeg?: number; decDeg?: number; error?: string } {
+  try {
+    const raDeg = parseRa(raInput);
+    const decDeg = parseDec(decInput);
+    return { isValid: true, raDeg, decDeg };
+  } catch (err: any) {
+    return { isValid: false, error: err.message || 'Invalid coordinates' };
+  }
 }
 
 /** Modified Julian Date -> ISO 8601 UTC string. */
@@ -245,7 +321,7 @@ export function normalizePrepared(p: any): NormalizedObservation {
 
 /** The two real cached cutouts, normalized exactly like live responses, but with
  *  previews served by the frontend and FITS marked unavailable (no backend). */
-function offlineFixture(): NormalizedObservation[] {
+export function offlineFixture(): NormalizedObservation[] {
   return WISE_0855_FIXTURE_RECORDS.map((rec) => {
     const obs = normalizePrepared(rec);
     return {
@@ -272,8 +348,13 @@ export async function searchObservations(params: {
     await new Promise((r) => setTimeout(r, 400));
     return {
       searchId: WISE_0855_FIXTURE_RECORDS[0].search_id,
+      collection: 'spherex_dr1',
       observations: offlineFixture(),
       truncated: false,
+      totalRows: 258,
+      queryUrl: 'https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+133.7951291667+-7.2451472222+0.01&RESPONSEFORMAT=VOTABLE',
+      queriedAtUtc: '2026-11-14T16:51:30+00:00',
+      interpretation: 'Footprints overlap a fixed sky direction. Offline demonstration fixture using reprocessed DR1 products.',
       isOfflineMock: true,
     };
   }
@@ -300,8 +381,10 @@ export async function getSearch(searchId: string): Promise<SearchResponse> {
 
 function searchRecordToResponse(data: any): SearchResponse {
   const rows: any[] = Array.isArray(data.observations) ? data.observations : [];
+  const collection = data.query?.collection || (rows.length > 0 ? rows[0].collection : DEFAULT_COLLECTION);
   return {
     searchId: data.search_id,
+    collection: collection || DEFAULT_COLLECTION,
     observations: rows.map((r) => normalizeSearchRow(r, data.search_id)),
     truncated: Boolean(data.truncated),
     totalRows: data.total_rows,
@@ -312,15 +395,15 @@ function searchRecordToResponse(data: any): SearchResponse {
   };
 }
 
-/** Prepares 1–2 observations. Observations from different searches are sent as
+/** Prepares 1–4 observations. Observations from different searches are sent as
  *  separate requests under their own search_id, then returned in input order. */
 export async function prepareObservations(
   selected: NormalizedObservation[],
   isOfflineMock: boolean,
   sizeDeg = DEFAULT_CUTOUT_SIZE_DEG
 ): Promise<NormalizedObservation[]> {
-  if (selected.length === 0 || selected.length > 2) {
-    throw new ApiError('Select 1 or 2 observations to prepare.', 0, 'invalid_input');
+  if (selected.length === 0 || selected.length > 4) {
+    throw new ApiError('Select between 1 and 4 observations to prepare.', 0, 'invalid_input');
   }
   if (isOfflineMock) {
     await new Promise((r) => setTimeout(r, 500));

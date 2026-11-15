@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+.venv/
+env/
+venv/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Python bytecode & caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Local data cache & logs
+backend/data/
+*.tmp
+*.log
+
+# Environment & OS
+.env
+.env.local
+.DS_Store
+Thumbs.db

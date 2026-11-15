@@ -112,7 +112,7 @@ class SearchRecord(StrictModel):
 
 
 class PrepareRequest(StrictModel):
-    observation_ids: list[str] = Field(min_length=1, max_length=2)
+    observation_ids: list[str] = Field(min_length=1, max_length=4)
     size_deg: float = Field(default=0.03, ge=0.005, le=0.1)
 
 
@@ -311,15 +311,32 @@ def create_app(data_dir: Path | None = None) -> FastAPI:
         try:
             if len(list(searches.glob("*.json"))) >= MAX_SEARCHES:
                 raise HTTPException(507, detail={"code": "search_budget"})
-            result = search_images(**request.model_dump())
-            record = SearchRecord(
-                search_id=uuid4().hex, query=request,
-                query_url=result["query_url"], queried_at_utc=result["queried_at_utc"],
-                truncated=result["truncated"], observations=result["observations"],
-                total_rows=result.get("total_rows"),
-            )
-            save_json(searches / f"{record.search_id}.json", record)
-            return record
+            try:
+                result = search_images(**request.model_dump())
+                record = SearchRecord(
+                    search_id=uuid4().hex, query=request,
+                    query_url=result["query_url"], queried_at_utc=result["queried_at_utc"],
+                    truncated=result["truncated"], observations=result["observations"],
+                    total_rows=result.get("total_rows"),
+                )
+                save_json(searches / f"{record.search_id}.json", record)
+                return record
+            except IRSAError as exc:
+                # When live IRSA is experiencing an outage / 502 proxy error,
+                # check if a matching search is available in local cache
+                for existing_path in searches.glob("*.json"):
+                    try:
+                        existing = json.loads(existing_path.read_text(encoding="utf-8"))
+                        q = existing.get("query", {})
+                        if (
+                            math.isclose(q.get("ra_deg", -999.0), request.ra_deg, abs_tol=1e-5)
+                            and math.isclose(q.get("dec_deg", -999.0), request.dec_deg, abs_tol=1e-5)
+                            and q.get("collection") == request.collection
+                        ):
+                            return SearchRecord.model_validate(existing)
+                    except Exception:
+                        continue
+                raise
         finally:
             operation.release()
 
@@ -348,14 +365,33 @@ def create_app(data_dir: Path | None = None) -> FastAPI:
                 directory.mkdir()
                 created_directories.append(directory)
                 try:
-                    retrieval = download_cutout(
-                        source.source_url, saved.query.ra_deg, saved.query.dec_deg,
-                        request.size_deg, directory / "source.fits",
-                    )
-                    inspection = inspect_and_render(
-                        directory / "source.fits", directory / "preview.png",
-                        saved.query.ra_deg, saved.query.dec_deg,
-                    )
+                    try:
+                        retrieval = download_cutout(
+                            source.source_url, saved.query.ra_deg, saved.query.dec_deg,
+                            request.size_deg, directory / "source.fits",
+                        )
+                        inspection = inspect_and_render(
+                            directory / "source.fits", directory / "preview.png",
+                            saved.query.ra_deg, saved.query.dec_deg,
+                        )
+                    except IRSAError as exc:
+                        # Fallback to existing cached cutout with matching source URL if IRSA is unavailable
+                        found_cached = False
+                        for existing_dir in cutouts.iterdir():
+                            if existing_dir.is_dir() and existing_dir != directory and (existing_dir / "record.json").exists():
+                                try:
+                                    rec_data = json.loads((existing_dir / "record.json").read_text(encoding="utf-8"))
+                                    if rec_data.get("source", {}).get("source_url") == source.source_url:
+                                        shutil.copyfile(existing_dir / "source.fits", directory / "source.fits")
+                                        shutil.copyfile(existing_dir / "preview.png", directory / "preview.png")
+                                        retrieval = rec_data["retrieval"]
+                                        inspection = rec_data["inspection"]
+                                        found_cached = True
+                                        break
+                                except Exception:
+                                    continue
+                        if not found_cached:
+                            raise
                     record = PreparedObservation(
                         cutout_id=cutout_id, search_id=search_id,
                         query_position=Position(ra_deg=saved.query.ra_deg, dec_deg=saved.query.dec_deg),

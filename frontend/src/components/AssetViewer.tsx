@@ -6,6 +6,7 @@ interface AssetViewerProps {
   comparisonMode: 'single' | 'blink' | 'side_by_side';
   onComparisonModeChange: (mode: 'single' | 'blink' | 'side_by_side') => void;
   onOpenReceipt: () => void;
+  onSwitchToSearch?: () => void;
 }
 
 export default function AssetViewer({
@@ -13,6 +14,7 @@ export default function AssetViewer({
   comparisonMode,
   onComparisonModeChange,
   onOpenReceipt,
+  onSwitchToSearch,
 }: AssetViewerProps) {
   // Always sort observations chronologically per Phase F4
   const sortedObs = useMemo(() => {
@@ -28,6 +30,7 @@ export default function AssetViewer({
   const [playbackSpeedMs, setPlaybackSpeedMs] = useState<number>(1200);
   const [invertColor, setInvertColor] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
+  const [showReticle, setShowReticle] = useState<boolean>(true);
 
   // Reset index when new observations arrive
   useEffect(() => {
@@ -73,7 +76,7 @@ export default function AssetViewer({
       <div className="bg-cardBg border border-borderCol rounded-xl p-10 text-center space-y-3 max-w-4xl">
         <p className="text-sm font-mono text-gray-300">NO PREPARED OBSERVATIONS LOADED</p>
         <p className="text-xs text-gray-500">
-          Go to the Search & Target Selection tab, search a target, and prepare 1 or 2 observations to inspect them here.
+          Go to the Search & Target Selection tab, search a target, and prepare 1 to 4 observations to inspect them here.
         </p>
       </div>
     );
@@ -124,6 +127,34 @@ export default function AssetViewer({
             </p>
           </div>
         )}
+
+        {/* Target Reticle Crosshair */}
+        {showReticle && obs.previewStatus === 'available' && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <svg className="w-16 h-16 text-accentGlow/60" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="10" fill="none" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2,2" />
+              <line x1="20" y1="2" x2="20" y2="15" stroke="currentColor" strokeWidth="1" />
+              <line x1="20" y1="25" x2="20" y2="38" stroke="currentColor" strokeWidth="1" />
+              <line x1="2" y1="20" x2="15" y2="20" stroke="currentColor" strokeWidth="1" />
+              <line x1="25" y1="20" x2="38" y2="20" stroke="currentColor" strokeWidth="1" />
+              <circle cx="20" cy="20" r="1.2" fill="currentColor" />
+            </svg>
+          </div>
+        )}
+
+        {/* Quality Warning Badges */}
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-1 pointer-events-none">
+          {obs.nonzeroFlagFraction !== undefined && obs.nonzeroFlagFraction > 0.3 && (
+            <span className="bg-amber-950/80 border border-amber-600/80 text-amber-200 px-2 py-0.5 rounded text-[10px] font-mono">
+              ⚠️ {(obs.nonzeroFlagFraction * 100).toFixed(0)}% FLAGS
+            </span>
+          )}
+          {obs.queryPositionInCutout === false && (
+            <span className="bg-red-950/80 border border-red-600/80 text-red-200 px-2 py-0.5 rounded text-[10px] font-mono">
+              ⚠️ Pointing Outside Cutout
+            </span>
+          )}
+        </div>
 
         {/* Corner Overlay Badge */}
         <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-sm border border-gray-800 px-2.5 py-1 rounded text-[11px] font-mono text-gray-300">
@@ -257,11 +288,45 @@ export default function AssetViewer({
         </span>
       </div>
 
+      {/* Single Frame Informative Banner with Quick Action */}
+      {sortedObs.length < 2 && (
+        <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/60 text-xs font-mono text-amber-200 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center space-x-2">
+            <span className="text-base">ℹ️</span>
+            <span>
+              <strong>Single Frame Loaded:</strong> Video playback and blinking require at least 2 observations taken at different dates.
+            </span>
+          </div>
+          {onSwitchToSearch && (
+            <button
+              type="button"
+              onClick={onSwitchToSearch}
+              className="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-semibold text-xs transition-colors flex items-center space-x-1"
+            >
+              <span>Select 2–4 Epochs in Search</span>
+              <span>→</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Viewer Display Area */}
       {comparisonMode === 'side_by_side' && sortedObs.length >= 2 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {renderObservationPane(sortedObs[0], 'EPOCH 1 (EARLIER)')}
-          {renderObservationPane(sortedObs[1], 'EPOCH 2 (LATER)')}
+        <div
+          className={`grid gap-4 ${
+            sortedObs.length === 2
+              ? 'grid-cols-1 lg:grid-cols-2'
+              : sortedObs.length === 3
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+          }`}
+        >
+          {sortedObs.map((obs, idx) =>
+            renderObservationPane(
+              obs,
+              `EPOCH ${idx + 1} (${idx === 0 ? 'EARLIEST' : idx === sortedObs.length - 1 ? 'LATEST' : 'INTERMEDIATE'})`
+            )
+          )}
         </div>
       ) : (
         renderObservationPane(
@@ -292,7 +357,12 @@ export default function AssetViewer({
             type="button"
             disabled={sortedObs.length < 2}
             onClick={() => setIsPlaying((prev) => !prev)}
-            className={`px-4 py-1.5 rounded text-xs font-mono font-semibold text-white disabled:opacity-40 ${
+            title={
+              sortedObs.length < 2
+                ? 'Time-series video playback requires at least 2 observations (epochs) to animate.'
+                : 'Play / Pause Time-Series Video [Space]'
+            }
+            className={`px-4 py-1.5 rounded text-xs font-mono font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors ${
               isPlaying ? 'bg-red-600 hover:bg-red-500' : 'bg-accentBlue hover:bg-blue-600'
             }`}
           >
@@ -318,12 +388,34 @@ export default function AssetViewer({
               className="px-2 py-1.5 rounded bg-darkBg border border-borderCol text-xs font-mono text-gray-300"
               title="Playback / Blink Interval"
             >
-              <option value={2000}>0.5x (Slow)</option>
-              <option value={1200}>1.0x (Normal)</option>
-              <option value={600}>2.0x (Fast Blink)</option>
+              <option value={2000}>0.5x (Slow - 2s)</option>
+              <option value={1200}>1.0x (Normal - 1.2s)</option>
+              <option value={600}>2.0x (Fast - 600ms)</option>
+              <option value={300}>4.0x (Rapid Video - 300ms)</option>
             </select>
           )}
         </div>
+
+        {/* Frame Scrubber Range Slider */}
+        {sortedObs.length > 1 && (
+          <div className="flex items-center space-x-2 px-3 py-1 bg-darkBg/60 border border-borderCol/60 rounded-lg">
+            <span className="text-[11px] font-mono text-gray-400">Scrub:</span>
+            <input
+              type="range"
+              min={0}
+              max={sortedObs.length - 1}
+              value={activeIndex}
+              onChange={(e) => {
+                setIsPlaying(false);
+                setActiveIndex(Number(e.target.value));
+              }}
+              className="w-24 sm:w-32 h-1.5 bg-darkBg rounded-lg appearance-none cursor-pointer accent-accentBlue"
+            />
+            <span className="text-[11px] font-mono text-accentGlow font-bold">
+              {activeIndex + 1}/{sortedObs.length}
+            </span>
+          </div>
+        )}
 
         {/* Chronological Timeline Pills */}
         <div className="flex flex-wrap items-center gap-2">
@@ -377,6 +469,18 @@ export default function AssetViewer({
             }`}
           >
             Invert
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowReticle((prev) => !prev)}
+            className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors ${
+              showReticle
+                ? 'bg-accentBlue/20 text-accentGlow border-accentBlue/40'
+                : 'bg-darkBg border-borderCol text-gray-400 hover:text-white'
+            }`}
+            title="Toggle Target Center Reticle Crosshair"
+          >
+            Reticle {showReticle ? 'ON' : 'OFF'}
           </button>
         </div>
       </div>

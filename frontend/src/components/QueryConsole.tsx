@@ -1,21 +1,56 @@
 import React, { useState } from 'react';
 import { CURATED_TARGETS } from '../data/fixtures';
-import { NormalizedObservation, TargetPreset } from '../types/observation';
-import { MAX_RADIUS_DEG, prepareObservations, searchObservations } from '../services/api';
+import { NormalizedObservation, SearchContext, TargetPreset } from '../types/observation';
+import {
+  DEFAULT_COLLECTION,
+  MAX_RADIUS_DEG,
+  SUPPORTED_COLLECTIONS,
+  prepareObservations,
+  searchObservations,
+  validateCoordinates,
+} from '../services/api';
+import { ParsedUrlParams, updateUrlParams } from '../services/urlParams';
 
 interface QueryConsoleProps {
   onObservationsPrepared: (
     prepared: NormalizedObservation[],
-    searchContext: { targetName: string; ra: string; dec: string; isOffline: boolean }
+    searchContext: SearchContext
   ) => void;
+  initialParams?: ParsedUrlParams;
 }
 
-export default function QueryConsole({ onObservationsPrepared }: QueryConsoleProps) {
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('wise-0855');
-  const [targetName, setTargetName] = useState<string>(CURATED_TARGETS[2].name);
-  const [ra, setRa] = useState<string>(CURATED_TARGETS[2].ra);
-  const [dec, setDec] = useState<string>(CURATED_TARGETS[2].dec);
-  const [radiusDeg, setRadiusDeg] = useState<number>(CURATED_TARGETS[2].radiusDeg);
+export default function QueryConsole({ onObservationsPrepared, initialParams }: QueryConsoleProps) {
+  const [selectedPresetId, setSelectedPresetId] = useState<string>(
+    initialParams?.preset?.id || (initialParams?.target && !initialParams.ra ? initialParams.target : 'wise-0855')
+  );
+  const [targetName, setTargetName] = useState<string>(
+    initialParams?.target || initialParams?.preset?.name || CURATED_TARGETS[2].name
+  );
+  const [ra, setRa] = useState<string>(
+    initialParams?.ra || initialParams?.preset?.ra || CURATED_TARGETS[2].ra
+  );
+  const [dec, setDec] = useState<string>(
+    initialParams?.dec || initialParams?.preset?.dec || CURATED_TARGETS[2].dec
+  );
+  const [radiusDeg, setRadiusDeg] = useState<number>(
+    initialParams?.radiusDeg || initialParams?.preset?.radiusDeg || CURATED_TARGETS[2].radiusDeg
+  );
+  const [collection, setCollection] = useState<string>(
+    initialParams?.collection || DEFAULT_COLLECTION
+  );
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [searchProvenance, setSearchProvenance] = useState<{
+    queryUrl?: string;
+    queriedAtUtc?: string;
+    totalRows?: number;
+    interpretation?: string;
+    activeCollection: string;
+  }>({ activeCollection: initialParams?.collection || DEFAULT_COLLECTION });
+
+  const coordValidation = React.useMemo(() => {
+    if (!ra.trim() || !dec.trim()) return null;
+    return validateCoordinates(ra, dec);
+  }, [ra, dec]);
 
   // Default to Offline Fixture Mode so UI works standalone until live backend is connected
   const [useOfflineMode, setUseOfflineMode] = useState<boolean>(true);
@@ -36,6 +71,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
     setSelectedKeys([]);
     setTruncated(false);
     setErrorMsg(null);
+    setSearchProvenance({ activeCollection: collection });
   };
 
   const changeMode = (offline: boolean) => {
@@ -52,6 +88,27 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
     setDec(preset.dec);
     setRadiusDeg(preset.radiusDeg);
     setErrorMsg(null);
+    updateUrlParams({
+      target: preset.name,
+      ra: preset.ra,
+      dec: preset.dec,
+      radiusDeg: preset.radiusDeg,
+    });
+  };
+
+  const handleCopyLink = () => {
+    updateUrlParams({
+      target: targetName,
+      ra,
+      dec,
+      radiusDeg,
+      collection,
+    });
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -71,13 +128,28 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
         ra: ra.trim(),
         dec: dec.trim(),
         radiusDeg,
+        collection,
         useOfflineFallback: useOfflineMode,
       });
 
       setSearchId(response.searchId);
       setResults(response.observations);
       setTruncated(response.truncated);
-      setSelectedKeys([]);
+      setSearchProvenance({
+        queryUrl: response.queryUrl,
+        queriedAtUtc: response.queriedAtUtc,
+        totalRows: response.totalRows,
+        interpretation: response.interpretation,
+        activeCollection: response.collection || collection,
+      });
+      // Auto-select the first 2 observations so the user has an immediate multi-epoch sequence ready for video playback
+      if (response.observations.length >= 2) {
+        setSelectedKeys(response.observations.slice(0, 2).map((o) => o.backendSelectionKey));
+      } else if (response.observations.length === 1) {
+        setSelectedKeys([response.observations[0].backendSelectionKey]);
+      } else {
+        setSelectedKeys([]);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Archive search failed.');
       setResults([]);
@@ -92,8 +164,8 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
       if (prev.includes(key)) {
         return prev.filter((k) => k !== key);
       }
-      if (prev.length >= 2) {
-        setErrorMsg('Maximum 2 observations can be selected per preparation request.');
+      if (prev.length >= 4) {
+        setErrorMsg('Maximum 4 observations can be selected per preparation request.');
         return prev;
       }
       return [...prev, key];
@@ -111,10 +183,19 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
     try {
       const prepared = await prepareObservations(selectedObs, useOfflineMode);
       onObservationsPrepared(prepared, {
-        targetName: targetName || 'Custom Sky Position',
-        ra,
-        dec,
+        targetName: targetName.trim() || 'Custom Sky Position',
+        ra: ra.trim(),
+        dec: dec.trim(),
+        radiusDeg,
+        collection: useOfflineMode ? 'spherex_dr1' : searchProvenance.activeCollection || collection,
+        searchId: searchId || undefined,
+        queryUrl: searchProvenance.queryUrl,
+        queriedAtUtc: searchProvenance.queriedAtUtc,
+        totalRows: searchProvenance.totalRows,
+        truncated,
+        searchInterpretation: searchProvenance.interpretation,
         isOffline: useOfflineMode,
+        presetId: selectedPresetId || undefined,
       });
     } catch (err: any) {
       setErrorMsg(err.message || 'Observation preparation failed.');
@@ -142,11 +223,10 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
             type="button"
             disabled={isSearching || isPreparing}
             onClick={() => changeMode(true)}
-            className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
-              useOfflineMode
+            className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${useOfflineMode
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                 : 'text-gray-400 hover:text-gray-200'
-            }`}
+              }`}
           >
             Offline Fixture (WISE 0855)
           </button>
@@ -154,11 +234,10 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
             type="button"
             disabled={isSearching || isPreparing}
             onClick={() => changeMode(false)}
-            className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
-              !useOfflineMode
+            className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${!useOfflineMode
                 ? 'bg-accentBlue text-white'
                 : 'text-gray-400 hover:text-gray-200'
-            }`}
+              }`}
           >
             Live FastAPI Backend
           </button>
@@ -167,13 +246,24 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
 
       {/* Curated Target Presets Bar */}
       <div className="bg-cardBg border border-borderCol rounded-xl p-4 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs font-mono uppercase text-gray-400">
             Curated Target Presets (5 Official Targets)
           </span>
-          <span className="text-[11px] font-mono text-gray-500">
-            Frame: ICRS | Epoch: {activePreset?.epoch || 'Custom'}
-          </span>
+          <div className="flex items-center space-x-3">
+            <span className="text-[11px] font-mono text-gray-500">
+              Frame: ICRS | Epoch: {activePreset?.epoch || 'Custom'}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="px-2.5 py-1 rounded text-[11px] font-mono bg-darkBg border border-borderCol hover:border-accentBlue text-gray-300 hover:text-white transition-colors flex items-center space-x-1"
+              title="Copy shareable link with current coordinates and release"
+            >
+              <span>🔗</span>
+              <span>{copiedLink ? 'Copied URL!' : 'Share / Embed Link'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -183,11 +273,10 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               type="button"
               disabled={isSearching || isPreparing || (useOfflineMode && preset.id !== 'wise-0855')}
               onClick={() => handleSelectPreset(preset)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-medium border transition-all ${
-                selectedPresetId === preset.id
+              className={`px-3.5 py-2 rounded-lg text-xs font-medium border transition-all ${selectedPresetId === preset.id
                   ? 'bg-accentBlue/15 border-accentBlue text-white'
                   : 'bg-darkBg border-borderCol text-gray-400 hover:border-gray-600 hover:text-gray-200'
-              }`}
+                }`}
             >
               {preset.name}
             </button>
@@ -207,7 +296,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
         onSubmit={handleSearch}
         className="bg-cardBg border border-borderCol rounded-xl p-5 space-y-4"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
             <label className="block text-xs font-mono text-gray-400 mb-1">TARGET LABEL</label>
             <input
@@ -267,7 +356,41 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
               className="w-full px-3 py-2 bg-darkBg border border-borderCol rounded-lg text-sm font-mono text-white focus:outline-none focus:border-accentBlue"
             />
           </div>
+
+          <div>
+            <label className="block text-xs font-mono text-gray-400 mb-1">
+              SPHEREx COLLECTION
+            </label>
+            <select
+              disabled={isSearching || isPreparing || useOfflineMode}
+              value={collection}
+              onChange={(e) => {
+                clearSearch();
+                setCollection(e.target.value);
+              }}
+              className="w-full px-3 py-2 bg-darkBg border border-borderCol rounded-lg text-sm font-mono text-white focus:outline-none focus:border-accentBlue"
+            >
+              {SUPPORTED_COLLECTIONS.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.id === 'spherex_dr1' ? 'DR1 (Surveys 1–2)' : 'QR3 (Surveys 3–4)'}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {coordValidation && !coordValidation.isValid && (
+          <div className="text-[11px] font-mono text-amber-300 bg-amber-950/30 border border-amber-800/50 px-3 py-1.5 rounded-lg flex items-center space-x-2">
+            <span>⚠️ Coordinate syntax alert:</span>
+            <span>{coordValidation.error}</span>
+          </div>
+        )}
+        {coordValidation && coordValidation.isValid && coordValidation.raDeg !== undefined && coordValidation.decDeg !== undefined && (
+          <div className="text-[11px] font-mono text-emerald-300 bg-emerald-950/25 border border-emerald-800/40 px-3 py-1.5 rounded-lg flex items-center justify-between">
+            <span>✓ Verified ICRS decimal coordinates:</span>
+            <span>RA: {coordValidation.raDeg.toFixed(6)}° • Dec: {coordValidation.decDeg.toFixed(6)}°</span>
+          </div>
+        )}
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs font-mono text-gray-500">
@@ -286,8 +409,20 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
 
       {/* Error / Warning Banners */}
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-red-950/40 border border-red-800/60 text-xs font-mono text-red-300">
-          ⚠️ {errorMsg}
+        <div className="p-4 rounded-xl bg-red-950/40 border border-red-800/60 text-xs font-mono text-red-300 space-y-2">
+          <div className="flex items-center space-x-2">
+            <span>⚠️</span>
+            <span>{errorMsg}</span>
+          </div>
+          {errorMsg.toLowerCase().includes('cannot reach') && (
+            <button
+              type="button"
+              onClick={() => changeMode(true)}
+              className="mt-2 inline-block px-3 py-1.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 transition-colors"
+            >
+              Switch to Offline Fixture Mode (Zero backend required) →
+            </button>
+          )}
         </div>
       )}
 
@@ -299,7 +434,7 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
 
       {searchId && !isSearching && !errorMsg && results.length === 0 && (
         <div className="p-4 rounded-xl bg-cardBg border border-borderCol text-xs font-mono text-gray-300">
-          No SPHEREx observations found at this position in the searched collection. Try a larger
+          No SPHEREx observations found at this position in the searched collection ({searchProvenance.activeCollection.toUpperCase().replace('_', ' ')}). Try a larger
           radius (max 0.05°) or another target. An empty result is not evidence that an object is absent.
         </div>
       )}
@@ -309,11 +444,21 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
         <div className="bg-cardBg border border-borderCol rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-borderCol pb-3">
             <div>
-              <h3 className="text-sm font-semibold text-white">
-                Discovered SPHEREx Observations ({results.length})
-              </h3>
-              <p className="text-xs font-mono text-gray-400">
-                SEARCH ID: {searchId} • Select 1 or 2 products to prepare for visual comparison
+              <div className="flex items-center space-x-2">
+                <h3 className="text-sm font-semibold text-white">
+                  Discovered SPHEREx Observations ({results.length})
+                </h3>
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-accentBlue/20 text-accentGlow border border-accentBlue/40">
+                  {searchProvenance.activeCollection.toUpperCase().replace('_', ' ')}
+                </span>
+                {searchProvenance.totalRows !== undefined && (
+                  <span className="text-[10px] font-mono text-gray-400">
+                    ({searchProvenance.totalRows} archive matches)
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-mono text-gray-400 mt-0.5">
+                SEARCH ID: {searchId} • Select 1 to 4 products to prepare for time-series playback
               </p>
             </div>
 
@@ -331,14 +476,31 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
                 type="button"
                 disabled={selectedKeys.length === 0 || isPreparing}
                 onClick={handlePrepare}
+                title={
+                  selectedKeys.length === 1
+                    ? 'Tip: Select at least 2 observations to enable video playback / blinking in the viewer'
+                    : undefined
+                }
                 className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-500 disabled:opacity-40 text-xs font-semibold text-white transition-colors"
               >
                 {isPreparing
                   ? 'Preparing Assets...'
-                  : `Prepare Selected (${selectedKeys.length}/2) →`}
+                  : `Prepare Selected (${selectedKeys.length}/4) →`}
               </button>
             </div>
           </div>
+
+          {searchProvenance.queryUrl && (
+            <div className="bg-darkBg/60 border border-borderCol/60 rounded-lg p-2.5 text-[11px] font-mono text-gray-400 space-y-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-accentGlow font-semibold">UPSTREAM IRSA SIA2 QUERY:</span>
+                {searchProvenance.queriedAtUtc && (
+                  <span className="text-gray-500">Queried: {searchProvenance.queriedAtUtc}</span>
+                )}
+              </div>
+              <p className="break-all text-gray-300 select-all">{searchProvenance.queryUrl}</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {results.map((obs) => {
@@ -347,22 +509,20 @@ export default function QueryConsole({ onObservationsPrepared }: QueryConsolePro
                 <div
                   key={obs.backendSelectionKey}
                   onClick={() => { if (!isSearching && !isPreparing) toggleSelectObservation(obs.backendSelectionKey); }}
-                  className={`cursor-pointer p-4 rounded-xl border transition-all ${
-                    isSelected
+                  className={`cursor-pointer p-4 rounded-xl border transition-all ${isSelected
                       ? 'bg-accentBlue/15 border-accentBlue'
                       : 'bg-darkBg border-borderCol hover:border-gray-600'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-mono font-bold text-accentGlow">
                       {obs.archiveObservationId || obs.sourceProductId}
                     </span>
                     <span
-                      className={`text-[11px] font-mono px-2 py-0.5 rounded ${
-                        isSelected
+                      className={`text-[11px] font-mono px-2 py-0.5 rounded ${isSelected
                           ? 'bg-accentBlue text-white'
                           : 'bg-borderCol text-gray-400'
-                      }`}
+                        }`}
                     >
                       {isSelected ? '✓ SELECTED' : 'CLICK TO SELECT'}
                     </span>
